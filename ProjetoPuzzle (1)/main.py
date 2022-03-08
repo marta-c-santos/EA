@@ -1,90 +1,119 @@
-from sys import stdin, stdout
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Peca {
+    public:
+        int numero[4];
+        int posta = 0;
+        int rodada = 0;
+};
+
+static vector<int> rotacao(vector<int> peca); //concluido
+static void puzzle(vector<vector<int>> pecas, int nlin, int ncol);
 
 
-def readln():
-    return stdin.readline().rstrip()
+int main() {
+
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int ntest, npecas, nlin, ncol;
+    cin >> ntest;
+    cout << ntest << "\n";
+    cin >> npecas >> nlin >> ncol;
+    cout << npecas << nlin << ncol << "\n";
+
+    for (int i = 0; i < ntest; i++){
+        cout << "antes vector" << "\n";
+        vector<vector<int>> totalpecas;
+        cout << "depois vector\n";
+        int peca[4];
+
+        for (int j = 0; j < npecas; j++) {
+            cout << "chegouuu" << "\n";
+            cin >> peca[0] >> peca[1] >> peca[2] >> peca[3];
+            cout << "leu" << "\n";
+
+            for (int k = 0; k < 4; ++k) {
+                cout << "--------entrouu forr" << "\n";
+                //totalpecas[j][k] = peca[k];
+                //cout << ".......adicionouu";
+            }
+        }
+
+        /*
+        for (int j = 0; j < npecas; ++j) {
+            cout << "[" << totalpecas[j][0] << "," << totalpecas[j][1] << "," << totalpecas[j][2] << "," << totalpecas[j][3] << "]\n";
+        }
+*/
+        puzzle(totalpecas, nlin, ncol);
+
+        // na impressao do tabuleiro, se o array for 0 ele n imprime, pq n existe nenhuma peca nessa posicao
+    }
+
+    return 0;
+}
+
+//concluido
+static vector<int> rotacao(vector<int> peca) {
+    int aux = peca[3];
+    for (int i = 3; i > 0; i--) {
+        peca[i] = peca[i-1];
+    }
+    peca[0] = aux;
+    /*
+    for (int j = 0; j < 4; ++j) {
+        cout << "Rodada[" << peca[0] << "," << peca[1] << "," << peca[2] << "," << peca[3] << "]\n";
+    }
+    */
+    return peca;
+}
 
 
-def outln(n):
-    stdout.write(str(n))
-    stdout.write("\n")
+static void puzzle(vector<vector<int>> pecas, int nlin, int ncol) {
+    int solucao[nlin][ncol][4];
+    int auxlin = 0, auxcol = 0, pecaPosta = 0;
+    for (int i = 0; i < 4; ++i) {
+        solucao[0][0][i] = pecas[0][i];
+    }
+    for (int j = 0; j < 4; ++j) {
+        cout << "peca[" << solucao[0] << "," << solucao[1] << "," << solucao[2] << "," << solucao[3] << "]\n";
+    }
 
-# ter a solucao como variavel global para não ser preciso passar os parametros das linhas e colunas
+    while(pecaPosta <= pecas.size()) {
+        for (int i = 0; i < pecas.size(); ++i) {
 
-def puzzle(pecas, nlin, ncol):
-    solucao = [[[0 for i in range(4)] for j in range(ncol)] for k in range(nlin)]
+        }
 
-    auxlin = 0
-    auxcol = 0
-    pecaPosta = 0 # nao foi colocada, 1 se for
-
-    print("solucao", solucao)
-    solucao[0][0] = pecas[0]
-    #print("solucao", solucao)
-    # print("pecas:", len(pecas))
-
-    while(pecaPosta == 0):
-        for i in range(1, len(pecas)):
-
-            # direita
-            if (pecas[i][1] == solucao[auxcol][auxlin][0] and pecas[i][2] == solucao[auxcol][auxlin][3]):
-                auxlin += 1
-                auxcol += 1
-                solucao[auxcol][auxlin] = pecas[i]
+        // por peca
+        // insert na solucao
+        // pecaPosta == 1:     #pos a peca
+        // ao vetor pecas tem de retirar a q foi posta
 
 
-            #fazer para acrescentar na linha
-            # nlin++
+        // se houver pecas avanca
+    }
 
-            #tentar colocar a peça na mesma
-            if (auxlin <= nlin):
-                if (pecas[i][1] == solucao[auxcol][auxlin][0] and pecas[i][2] == solucao[auxcol][auxlin][3]):
-                    auxlin += 1
-                    auxcol += 1
-                    solucao[auxcol][auxlin] = pecas[i]
-                    pecaPosta = 1
-                else:
-                    pecaR = rotacao(pecas[i])
-                    pecaPosta = 0
+    //pecas[0] = rotacao(pecas[0]);
+}
+//}
 
+/*
+ * Input
 
-            #fazer para acrescentar na coluna
-            # ncol++
-            # tentar com todas as pecas
-            # senao rodar 1 a 1 e experimentar todas até alguma dar ou até ao fim
+3
+3 1 3
+2 5 1 3
+1 5 4 5
+3 2 5 4
+2 2 1
+1 2 3 4
+4 1 3 4
+4 2 2
+1 2 3 4
+1 3 2 5
+4 2 3 1
+5 4 3 2
 
-
-
-    print(solucao)
-    # 0 1    0 1
-    # 3 2    3 2
-
-    # 1 2    2 1
-    # 4 3    3 4
-
-
-def rotacao(peca):
-    aux = peca[len(peca) - 1]
-    for i in range(len(peca) - 1, -1, -1):
-        peca[i] = peca[i - 1]
-    peca[0] = aux
-
-    return peca
-
-
-if __name__ == "__main__":
-    n = readln()
-    dim = readln().split()
-    print("DIMENSAO:", dim)
-    print(int(dim[1]))
-    print(int(dim[2]))
-
-    # while (dim != None and dim != ''):
-    for i in range(int(n)):
-        array = []
-        for i in range(int(dim[0])):
-            piece = readln().split()
-            array.append(piece)
-        print("array", array)
-        puzzle(array, int(dim[1]), int(dim[2]))
-        dim = readln().split()
+ */
+    
