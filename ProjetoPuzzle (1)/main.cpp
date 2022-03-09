@@ -12,7 +12,7 @@ public:
 
 static vector<int> rotacao(vector<int> peca); //concluido
 static void puzzle(Peca *pecas, int nlin, int ncol);
-
+static void direita();
 
 int main() {
 
@@ -37,7 +37,7 @@ int main() {
             cout << "[" << pecas[j].numero[0] << pecas[j].numero[1] << pecas[j].numero[2] << pecas[j].numero[3] << "]\n";
         }
 
-        //puzzle(pecas, nlin, ncol);
+        puzzle(pecas, nlin, ncol);
 
         // na impressao do tabuleiro, se o array for 0 ele n imprime, pq n existe nenhuma peca nessa posicao
     }
@@ -64,11 +64,40 @@ static vector<int> rotacao(vector<int> peca) {
 static void puzzle(Peca *pecas, int nlin, int ncol) {
     int solucao[nlin][ncol][4];
     int auxlin = 0, auxcol = 0, pecaPosta = 0;
+
+    for (int i = 0; i < 4; ++i) {
+        solucao[0][0][i] = pecas[0].numero[i];
+    }
+
+    //impressao
+    for (int i = 0; i < nlin; ++i) {
+        for (int j = 0; j < ncol; ++j) {
+            for (int k = 0; k < 4; ++k) {
+                cout << solucao[i][j][k];
+            }
+        }
+    }
+
+    //por pensar
+    for(Peca peca: pecas){
+        // primeira peca
+        //chamar direita recursiva
+        //andar nas pecas
+        //chamar direita para colocar
+    }
+
+
+
+
+
+
+
+
+
+
+    /*
     for (int i = 0; i < 4; ++i) {
         solucao[0][0][i] = pecas[0][i];
-    }
-    for (int j = 0; j < 4; ++j) {
-        cout << "peca[" << solucao[0] << "," << solucao[1] << "," << solucao[2] << "," << solucao[3] << "]\n";
     }
 
     while(pecaPosta <= pecas.size()) {
@@ -86,9 +115,12 @@ static void puzzle(Peca *pecas, int nlin, int ncol) {
     }
 
     //pecas[0] = rotacao(pecas[0]);
+}*/
 }
-//}
 
+static void direita(){
+
+}
 /*
  * Input
 
