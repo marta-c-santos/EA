@@ -2,11 +2,18 @@
 #include <vector>
 using namespace std;
 
-class Peca {
+
+class PecasTodas {
     public:
-        int numero[4];
-        int posta = 0;
-        int rodada = 0;
+        class Peca *unica;
+};
+
+class Peca {
+public:
+    int numero[4];
+    //vector<int> numero {0,0,0,0};
+    int posta = 0;
+    int rodada = 0;
 };
 
 static vector<int> rotacao(vector<int> peca); //concluido
@@ -23,9 +30,24 @@ int main() {
     cin >> npecas >> nlin >> ncol;
     cout << npecas << nlin << ncol << "\n";
 
+    PecasTodas testeTodas[ntest];
+    Peca total[npecas];
+
+    for (PecasTodas teste: testeTodas) {
+        for(Peca umaPeca: total){
+            umaPeca.numero =
+        }
+    }
+    
+    
+    
+    
+    /*
     for (int i = 0; i < ntest; i++){
+
         cout << "antes vector" << "\n";
-        vector<vector<int>> totalpecas;
+        vector<vector<int>> totalpecas (nlin, vector<int>(ncol)); // Defaults to zero initial value
+
         cout << "depois vector\n";
         int peca[4];
 
@@ -34,22 +56,28 @@ int main() {
             cin >> peca[0] >> peca[1] >> peca[2] >> peca[3];
             cout << "leu" << "\n";
 
-            for (int k = 0; k < 4; ++k) {
+            for (int k = 0; k < 4; k++) {
                 cout << "--------entrouu forr" << "\n";
+                int atual = peca[k];
+                //cout << "totalpecas" << totalpecas[j][k] << "\n";
+
+                todas.unica->numero[k] = peca[k];
+                //peca1.posta = 1;
+                //totalpecas[j][k] = atual;
                 //totalpecas[j][k] = peca[k];
                 //cout << ".......adicionouu";
             }
         }
 
-        /*
+
         for (int j = 0; j < npecas; ++j) {
             cout << "[" << totalpecas[j][0] << "," << totalpecas[j][1] << "," << totalpecas[j][2] << "," << totalpecas[j][3] << "]\n";
         }
-*/
-        puzzle(totalpecas, nlin, ncol);
+        
+        //puzzle(totalpecas, nlin, ncol);
 
         // na impressao do tabuleiro, se o array for 0 ele n imprime, pq n existe nenhuma peca nessa posicao
-    }
+    }*/
 
     return 0;
 }
@@ -82,7 +110,7 @@ static void puzzle(vector<vector<int>> pecas, int nlin, int ncol) {
 
     while(pecaPosta <= pecas.size()) {
         for (int i = 0; i < pecas.size(); ++i) {
-
+            int a = 0;
         }
 
         // por peca
