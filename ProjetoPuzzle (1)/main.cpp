@@ -2,12 +2,6 @@
 #include <vector>
 using namespace std;
 
-
-class PecasTodas {
-    public:
-        class Peca *unica;
-};
-
 class Peca {
 public:
     int numero[4];
@@ -17,7 +11,7 @@ public:
 };
 
 static vector<int> rotacao(vector<int> peca); //concluido
-static void puzzle(vector<vector<int>> pecas, int nlin, int ncol);
+static void puzzle(Peca *pecas, int nlin, int ncol);
 
 
 int main() {
@@ -27,57 +21,26 @@ int main() {
     int ntest, npecas, nlin, ncol;
     cin >> ntest;
     cout << ntest << "\n";
-    cin >> npecas >> nlin >> ncol;
-    cout << npecas << nlin << ncol << "\n";
 
-    PecasTodas testeTodas[ntest];
-    Peca total[npecas];
 
-    for (PecasTodas teste: testeTodas) {
-        for(Peca umaPeca: total){
-            umaPeca.numero =
-        }
-    }
-    
-    
-    
-    
-    /*
     for (int i = 0; i < ntest; i++){
-
-        cout << "antes vector" << "\n";
-        vector<vector<int>> totalpecas (nlin, vector<int>(ncol)); // Defaults to zero initial value
-
-        cout << "depois vector\n";
-        int peca[4];
+        cin >> npecas >> nlin >> ncol;
+        cout << npecas << nlin << ncol << "\n";
+        Peca pecas[npecas];
 
         for (int j = 0; j < npecas; j++) {
-            cout << "chegouuu" << "\n";
-            cin >> peca[0] >> peca[1] >> peca[2] >> peca[3];
-            cout << "leu" << "\n";
-
-            for (int k = 0; k < 4; k++) {
-                cout << "--------entrouu forr" << "\n";
-                int atual = peca[k];
-                //cout << "totalpecas" << totalpecas[j][k] << "\n";
-
-                todas.unica->numero[k] = peca[k];
-                //peca1.posta = 1;
-                //totalpecas[j][k] = atual;
-                //totalpecas[j][k] = peca[k];
-                //cout << ".......adicionouu";
-            }
+            cin >> pecas[j].numero[0] >> pecas[j].numero[1] >> pecas[j].numero[2] >> pecas[j].numero[3];
         }
 
-
+        //impressao
         for (int j = 0; j < npecas; ++j) {
-            cout << "[" << totalpecas[j][0] << "," << totalpecas[j][1] << "," << totalpecas[j][2] << "," << totalpecas[j][3] << "]\n";
+            cout << "[" << pecas[j].numero[0] << pecas[j].numero[1] << pecas[j].numero[2] << pecas[j].numero[3] << "]\n";
         }
-        
-        //puzzle(totalpecas, nlin, ncol);
+
+        //puzzle(pecas, nlin, ncol);
 
         // na impressao do tabuleiro, se o array for 0 ele n imprime, pq n existe nenhuma peca nessa posicao
-    }*/
+    }
 
     return 0;
 }
@@ -98,7 +61,7 @@ static vector<int> rotacao(vector<int> peca) {
 }
 
 
-static void puzzle(vector<vector<int>> pecas, int nlin, int ncol) {
+static void puzzle(Peca *pecas, int nlin, int ncol) {
     int solucao[nlin][ncol][4];
     int auxlin = 0, auxcol = 0, pecaPosta = 0;
     for (int i = 0; i < 4; ++i) {
