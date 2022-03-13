@@ -7,11 +7,13 @@ public:
     int numero[4];
     //vector<int> numero {0,0,0,0};
     int posta = 0;
-    int rodada = 0;
+    //int rodada = 0;
+    int rotacao[3][4]; //3 rotacoes sem a original
 };
 
-static vector<int> rotacao(vector<int> peca); //concluido
-static void puzzle(Peca *pecas, int nlin, int ncol);
+static int *rotacao(int peca[]) ; //nao concluido
+static void rodarTodas(Peca *pecas, int npecas);
+static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
 static void direita();
 
 int main() {
@@ -37,7 +39,7 @@ int main() {
             cout << "[" << pecas[j].numero[0] << pecas[j].numero[1] << pecas[j].numero[2] << pecas[j].numero[3] << "]\n";
         }
 
-        puzzle(pecas, nlin, ncol);
+        puzzle(pecas, npecas, nlin, ncol);
 
         // na impressao do tabuleiro, se o array for 0 ele n imprime, pq n existe nenhuma peca nessa posicao
     }
@@ -45,41 +47,68 @@ int main() {
     return 0;
 }
 
-//concluido
-static vector<int> rotacao(vector<int> peca) {
+// concluido
+static int *rotacao(int peca[]) {
     int aux = peca[3];
     for (int i = 3; i > 0; i--) {
         peca[i] = peca[i-1];
     }
     peca[0] = aux;
-    /*
-    for (int j = 0; j < 4; ++j) {
-        cout << "Rodada[" << peca[0] << "," << peca[1] << "," << peca[2] << "," << peca[3] << "]\n";
-    }
-    */
+
+    //impressao
+    cout << "Rodada[" << peca[0] << "," << peca[1] << "," << peca[2] << "," << peca[3] << "]\n";
+
+    cout << "pecaaaaaaaaa: " << &peca << "\n";
     return peca;
 }
 
 
-static void puzzle(Peca *pecas, int nlin, int ncol) {
+// esta a rodar tudo bem, mas so faz da primeira peça
+static void rodarTodas(Peca *pecas, int npecas) {
+
+    for (int i = 0; i < npecas; i++) {  //for para cada peca
+
+        for (int j = 0; j < 3; ++j) {    //for para cada rotacao - so 3 porque nao precisa rodar no fim para a original
+            cout << "rotacao " << j << "\n";
+            int *rot = rotacao(pecas[i].numero);
+            for (int k = 0; k < 4; k++) {   //for para guardar os 4 numeros da peca no fim de rodada
+                pecas[i].rotacao[j][k] = rot[k];
+            }
+        }
+    }
+}
+
+
+static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
     int solucao[nlin][ncol][4];
     int auxlin = 0, auxcol = 0, pecaPosta = 0;
 
+    cout << "antes\n";
+    rodarTodas(pecas, npecas);
+    cout << "depois\n";
+
+    //primeira peca
     for (int i = 0; i < 4; ++i) {
         solucao[0][0][i] = pecas[0].numero[i];
     }
 
-    //impressao
+    //impressao - n esta bem
     for (int i = 0; i < nlin; ++i) {
         for (int j = 0; j < ncol; ++j) {
             for (int k = 0; k < 4; ++k) {
-                cout << solucao[i][j][k];
+                cout << solucao[i][j][k] << "\n";
             }
         }
     }
 
     //por pensar
-    for(Peca peca: pecas){
+
+    //for(Peca &peca : pecas){
+
+    for (int j = 0; j < npecas; j++) {
+        //primeira peca esta posta
+        int a=0;
+
         // primeira peca
         //chamar direita recursiva
         //andar nas pecas
