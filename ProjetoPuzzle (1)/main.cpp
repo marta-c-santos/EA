@@ -12,11 +12,8 @@ public:
 
 static Peca rotacao(Peca peca); // concluido
 static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
-
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
-
 static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
-
 void impressao(Peca *pecas, int nlin, int ncol, bool state);
 
 
@@ -108,7 +105,7 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
 
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
     for (int pos = 1; pos < npecas; pos++) {
-        if (pecas[pos].posta == 0) {//a pecas nao esta posta, vai por
+        if (pecas[pos].posta == 0) { //a pecas nao esta posta, vai por
             for (int i = 0; i < 4; ++i) {
                 if (solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
                     solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
@@ -129,7 +126,6 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
     }
 
 
-
     //cout << solucao[nlin-1][ncol-1].numero[0] << solucao[nlin-1][ncol-1].numero[1] << solucao[nlin-1][ncol-1].numero[2] << solucao[nlin-1][ncol-1].numero[3];
     if (solucao[nlin - 1][ncol - 1].posta == 1) {
         return true;
@@ -141,24 +137,41 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
 static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
     for (int pos = 0; pos < npecas; pos++) {
         for (int i = 0; i < 4; ++i) {
-            if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
-                solucao[line - 1][col].numero[2] == pecas[pos].numero[1] and
-                solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
-                solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
-                solucao[line][col] = pecas[pos];
-                pecas[pos].posta = 1;
+            if (col == 0) {
+                if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and solucao[line - 1][col].numero[2] == pecas[pos].numero[1]) {
+                    solucao[line][col] = pecas[pos];
+                    pecas[pos].posta = 1;
 
-                if (pos + 1 < npecas) {
-                    if (baixo(nlin, ncol, npecas, solucao, pecas, line, col + 1))
-                        return true;
+                    if (pos + 1 < npecas) {
+                        if (baixo(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                            return true;
+                    }
                 }
             } else {
-                Peca aux = rotacao(pecas[pos]);
-                pecas[pos] = aux;
+                if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
+                    solucao[line - 1][col].numero[2] == pecas[pos].numero[1] and
+                    solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
+                    solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
+
+                    solucao[line][col] = pecas[pos];
+                    pecas[pos].posta = 1;
+
+                    if (pos + 1 < npecas) {
+                        if (baixo(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                            return true;
+                    }
+                } else {
+                    Peca aux = rotacao(pecas[pos]);
+                    pecas[pos] = aux;
+                }
             }
             pecas[pos].posta = 0;
         }
     }
+    if (solucao[nlin - 1][ncol - 1].posta == 1) {
+        return true;
+    }
+
     return false;
 }
 
