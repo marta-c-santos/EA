@@ -243,3 +243,4 @@ void impressao(Peca **solucao, int nlin, int ncol, bool state) {
 4 2 3 1
 5 4 3 2
  */
+
