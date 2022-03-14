@@ -14,7 +14,7 @@ static Peca rotacao(Peca peca); // concluido
 static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
 static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
-void impressao(Peca *pecas, int nlin, int ncol, bool state);
+void impressao(Peca **solucao, int nlin, int ncol, bool state);
 
 
 int main() {
@@ -85,9 +85,10 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
     }*/
 
     bool state = direita(nlin, ncol, npecas, solucao, pecas, 0, 1);
-    cout << "state direita: " << state << "\n";
-    state = baixo(nlin, ncol, npecas, solucao, pecas, 1, 0);
-    cout << "state baixo: " << state << "\n";
+    //cout << "state direita: " << state << "\n";
+    //state = baixo(nlin, ncol, npecas, solucao, pecas, 1, 0);
+    //cout << "state baixo: " << state << "\n";
+
     /*
     //impressao solucao
     for (int i = 0; i < nlin; ++i) {
@@ -97,9 +98,9 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
             }
             cout << "-------------------\n";
         }
-    }*/
-
-    impressao(*solucao, nlin, ncol, state);
+    }
+    */
+    impressao(solucao, nlin, ncol, state);
 
 }
 
@@ -107,18 +108,44 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
     for (int pos = 1; pos < npecas; pos++) {
         if (pecas[pos].posta == 0) { //a pecas nao esta posta, vai por
             for (int i = 0; i < 4; ++i) {
-                if (solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
-                    solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
-                    solucao[line][col] = pecas[pos];
-                    pecas[pos].posta = 1;
+                if (line == 0) {
+                    if (solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
+                        solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
 
-                    if (pos + 1 < npecas) {
-                        if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
-                            return true;
+                        solucao[line][col] = pecas[pos];
+                        pecas[pos].posta = 1;
+
+                        if (pos + 1 < npecas) {
+                            if (col < ncol - 1) {
+                                if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                                    return true;
+                            } else {
+                                if (baixo(nlin, ncol, npecas, solucao, pecas, line + 1, 0))
+                                    return true;
+                            }
+                        }
+
+                    } else {
+                        Peca aux = rotacao(pecas[pos]);
+                        pecas[pos] = aux;
                     }
                 } else {
-                    Peca aux = rotacao(pecas[pos]);
-                    pecas[pos] = aux;
+                    if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
+                        solucao[line - 1][col].numero[2] == pecas[pos].numero[1] and
+                        solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
+                        solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
+
+                        solucao[line][col] = pecas[pos];
+                        pecas[pos].posta = 1;
+
+                        if (pos + 1 < npecas) {
+                            if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                                return true;
+                        }
+                    } else {
+                        Peca aux = rotacao(pecas[pos]);
+                        pecas[pos] = aux;
+                    }
                 }
             }
             pecas[pos].posta = 0;
@@ -127,6 +154,7 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
 
 
     //cout << solucao[nlin-1][ncol-1].numero[0] << solucao[nlin-1][ncol-1].numero[1] << solucao[nlin-1][ncol-1].numero[2] << solucao[nlin-1][ncol-1].numero[3];
+
     if (solucao[nlin - 1][ncol - 1].posta == 1) {
         return true;
     }
@@ -135,39 +163,29 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
 }
 
 static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
+    //for (int pos = 0; pos < npecas; pos++) {
+        //for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i) {
     for (int pos = 0; pos < npecas; pos++) {
-        for (int i = 0; i < 4; ++i) {
-            if (col == 0) {
-                if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and solucao[line - 1][col].numero[2] == pecas[pos].numero[1]) {
-                    solucao[line][col] = pecas[pos];
-                    pecas[pos].posta = 1;
+            if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
+                solucao[line - 1][col].numero[2] == pecas[pos].numero[1]) {
 
-                    if (pos + 1 < npecas) {
-                        if (baixo(nlin, ncol, npecas, solucao, pecas, line, col + 1))
-                            return true;
-                    }
+                //cout << "pecas[pos]: " << pecas[pos].numero[0];
+                solucao[line][col] = pecas[pos];
+                pecas[pos].posta = 1;
+
+                if (pos + 1 < npecas) {
+                    if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                        return true;
                 }
             } else {
-                if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
-                    solucao[line - 1][col].numero[2] == pecas[pos].numero[1] and
-                    solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
-                    solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
-
-                    solucao[line][col] = pecas[pos];
-                    pecas[pos].posta = 1;
-
-                    if (pos + 1 < npecas) {
-                        if (baixo(nlin, ncol, npecas, solucao, pecas, line, col + 1))
-                            return true;
-                    }
-                } else {
-                    Peca aux = rotacao(pecas[pos]);
-                    pecas[pos] = aux;
-                }
+                Peca aux = rotacao(pecas[pos]);
+                pecas[pos] = aux;
             }
             pecas[pos].posta = 0;
         }
     }
+
     if (solucao[nlin - 1][ncol - 1].posta == 1) {
         return true;
     }
@@ -176,29 +194,30 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
 }
 
 
-void impressao(Peca *pecas, int nlin, int ncol, bool state) {
-    int aux = 0;
-
+void impressao(Peca **solucao, int nlin, int ncol, bool state) {
+    int aux;
 
     if (state == 0) {
         cout << "impossible puzzle!\n";
         return;
     } else {
-        for (int l = 0; l < nlin; ++l) {
-            if (pecas[aux].numero[0] != 0) {
-                if (l >= 1)
+        for (int i = 0; i < nlin; i++) {
+            aux = 0;
+            if (solucao[i][aux].numero[0] != 0) {
+                if (i >= 1)
                     cout << "\n";
-                cout << pecas[aux].numero[0] << " " << pecas[aux].numero[1];
+                cout << solucao[i][aux].numero[0] << " " << solucao[i][aux].numero[1];
+
                 if (ncol >= 1) {
                     for (int j = 1; j < ncol; j++) {
-                        cout << "  " << pecas[j].numero[0] << " " << pecas[j].numero[1];
+                        cout << "  " << solucao[i][j].numero[0] << " " << solucao[i][j].numero[1];
                     }
                 }
                 cout << "\n";
-                cout << pecas[aux].numero[3] << " " << pecas[aux].numero[2];
+                cout << solucao[i][aux].numero[3] << " " << solucao[i][aux].numero[2];
                 if (ncol >= 1) {
                     for (int j = 1; j < ncol; j++) {
-                        cout << "  " << pecas[j].numero[3] << " " << pecas[j].numero[2];
+                        cout << "  " << solucao[i][j].numero[3] << " " << solucao[i][j].numero[2];
                     }
                 }
                 cout << "\n";
@@ -206,15 +225,6 @@ void impressao(Peca *pecas, int nlin, int ncol, bool state) {
             }
         }
     }
-
-
-
-    //if (pecas[nlin].numero[0] == 0 or pecas[ncol].numero[0] == 0) {
-    //cout << "wwwwwwwwwwwwwwww: " << pecas[1].numero[0] << "\n";
-    /*
-    if (pecas[1].numero[0] == 0) {
-        cout << "impossible puzzle!\n";
-    }*/
 }
 
 
