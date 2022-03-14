@@ -14,7 +14,7 @@ static Peca rotacao(Peca peca); // concluido
 static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
 static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
-void impressao(Peca **solucao, int nlin, int ncol, bool state);
+void impressao(Peca **solucao, int nlin, int ncol, bool state); // concluido
 
 
 int main() {
@@ -85,9 +85,6 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
     }*/
 
     bool state = direita(nlin, ncol, npecas, solucao, pecas, 0, 1);
-    //cout << "state direita: " << state << "\n";
-    //state = baixo(nlin, ncol, npecas, solucao, pecas, 1, 0);
-    //cout << "state baixo: " << state << "\n";
 
     /*
     //impressao solucao
@@ -115,7 +112,7 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
                         solucao[line][col] = pecas[pos];
                         pecas[pos].posta = 1;
 
-                        if (pos + 1 < npecas) {
+                        if (pos + 1 <= npecas) { //ve se ainda ha pecas
                             if (col < ncol - 1) {
                                 if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
                                     return true;
@@ -166,7 +163,7 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
     //for (int pos = 0; pos < npecas; pos++) {
         //for (int i = 0; i < 4; ++i) {
     for (int i = 0; i < 4; ++i) {
-    for (int pos = 0; pos < npecas; pos++) {
+        for (int pos = 0; pos < npecas; pos++) {
             if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
                 solucao[line - 1][col].numero[2] == pecas[pos].numero[1]) {
 
@@ -174,7 +171,7 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
                 solucao[line][col] = pecas[pos];
                 pecas[pos].posta = 1;
 
-                if (pos + 1 < npecas) {
+                if (pos + 1 <= npecas) {
                     if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
                         return true;
                 }
@@ -182,8 +179,9 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
                 Peca aux = rotacao(pecas[pos]);
                 pecas[pos] = aux;
             }
-            pecas[pos].posta = 0;
+
         }
+
     }
 
     if (solucao[nlin - 1][ncol - 1].posta == 1) {
@@ -194,10 +192,11 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
 }
 
 
+//concluido
 void impressao(Peca **solucao, int nlin, int ncol, bool state) {
     int aux;
 
-    if (state == 0) {
+    if (!state) {
         cout << "impossible puzzle!\n";
         return;
     } else {
