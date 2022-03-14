@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+
 using namespace std;
 
 class Peca {
@@ -11,8 +12,13 @@ public:
 
 static Peca rotacao(Peca peca); // concluido
 static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
+
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
+
+static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
+
 void impressao(Peca *pecas, int nlin, int ncol, bool state);
+
 
 int main() {
 
@@ -22,7 +28,7 @@ int main() {
     cin >> ntest;
     //cout << ntest << "\n";
 
-    for (int i = 0; i < ntest; i++){
+    for (int i = 0; i < ntest; i++) {
         cin >> npecas >> nlin >> ncol;
         //cout << npecas << nlin << ncol << "\n";
         Peca pecas[npecas];
@@ -49,7 +55,7 @@ int main() {
 static Peca rotacao(Peca peca) {
     int aux = peca.numero[3];
     for (int i = 3; i > 0; i--) {
-        peca.numero[i] = peca.numero[i-1];
+        peca.numero[i] = peca.numero[i - 1];
     }
     peca.numero[0] = aux;
 
@@ -61,7 +67,7 @@ static Peca rotacao(Peca peca) {
 
 
 static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
-    Peca **solucao = new Peca*[nlin];
+    Peca **solucao = new Peca *[nlin];
 
     //inicializar a solucao a 0
     for (int i = 0; i < nlin; ++i) {
@@ -69,7 +75,7 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
     }
 
     //primeira peca
-    solucao[0][0]= pecas[0];
+    solucao[0][0] = pecas[0];
     pecas[0].posta = 1;
 
     /*
@@ -82,7 +88,9 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
     }*/
 
     bool state = direita(nlin, ncol, npecas, solucao, pecas, 0, 1);
-    //cout << state << "\n";
+    cout << "state direita: " << state << "\n";
+    state = baixo(nlin, ncol, npecas, solucao, pecas, 1, 0);
+    cout << "state baixo: " << state << "\n";
     /*
     //impressao solucao
     for (int i = 0; i < nlin; ++i) {
@@ -99,7 +107,7 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
 }
 
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
-    for (int pos = 1; pos < npecas ; pos++) {
+    for (int pos = 1; pos < npecas; pos++) {
         if (pecas[pos].posta == 0) {//a pecas nao esta posta, vai por
             for (int i = 0; i < 4; ++i) {
                 if (solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
@@ -123,10 +131,34 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
 
 
     //cout << solucao[nlin-1][ncol-1].numero[0] << solucao[nlin-1][ncol-1].numero[1] << solucao[nlin-1][ncol-1].numero[2] << solucao[nlin-1][ncol-1].numero[3];
-    if(solucao[nlin-1][ncol-1].posta == 1){
+    if (solucao[nlin - 1][ncol - 1].posta == 1) {
         return true;
     }
 
+    return false;
+}
+
+static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
+    for (int pos = 0; pos < npecas; pos++) {
+        for (int i = 0; i < 4; ++i) {
+            if (solucao[line - 1][col].numero[3] == pecas[pos].numero[0] and
+                solucao[line - 1][col].numero[2] == pecas[pos].numero[1] and
+                solucao[line][col - 1].numero[1] == pecas[pos].numero[0] and
+                solucao[line][col - 1].numero[2] == pecas[pos].numero[3]) {
+                solucao[line][col] = pecas[pos];
+                pecas[pos].posta = 1;
+
+                if (pos + 1 < npecas) {
+                    if (baixo(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                        return true;
+                }
+            } else {
+                Peca aux = rotacao(pecas[pos]);
+                pecas[pos] = aux;
+            }
+            pecas[pos].posta = 0;
+        }
+    }
     return false;
 }
 
@@ -138,8 +170,7 @@ void impressao(Peca *pecas, int nlin, int ncol, bool state) {
     if (state == 0) {
         cout << "impossible puzzle!\n";
         return;
-    }
-    else{
+    } else {
         for (int l = 0; l < nlin; ++l) {
             if (pecas[aux].numero[0] != 0) {
                 if (l >= 1)
