@@ -27,6 +27,7 @@ public:
 static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
 static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
 static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
+static bool pre_process(Peca *pecas, int npecas);
 void impressao(Peca **solucao, int nlin, int ncol, bool state); // concluido
 
 
@@ -52,12 +53,41 @@ int main() {
             cout << "[" << pecas[j].numero[0] << pecas[j].numero[1] << pecas[j].numero[2] << pecas[j].numero[3] << "]\n";
         }
         */
-        puzzle(pecas, npecas, nlin, ncol);
+        bool state = pre_process(pecas, npecas);
+        if(state)
+            puzzle(pecas, npecas, nlin, ncol);
+        else
+            cout << "impossible puzzle!\n";
         //impressao(pecas, npecas, nlin, ncol);
 
     }
 
     return 0;
+}
+
+static bool pre_process(Peca *pecas, int npecas){
+    int arr[1000];
+    int count = 0;
+    for (int i = 0; i < 1000; i++){
+        arr[i] = 0;
+    }
+
+    for (int i = 0; i < npecas; i++) {
+        for (int j : pecas[i].numero) {
+            arr[j] += 1;
+        }
+    }
+
+    for (int i = 0; i < 1000; i++) {
+        if(arr[i] % 2 != 0){
+            count += 1;
+        }
+    }
+
+    if (count > 4)
+        return false;
+
+    return true;
 }
 
 
