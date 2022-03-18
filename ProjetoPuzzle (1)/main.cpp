@@ -1,10 +1,11 @@
 #include <iostream>
 #include <vector>
-
+#include <map>
 using namespace std;
 
 // fazer a hash table aqui
-
+map<array<int,2>, vector<int>> CompMap;
+int nlin, ncol;
 class Peca {
 public:
     int numero[4];
@@ -23,18 +24,21 @@ public:
 };
 
 
-static void puzzle(Peca *pecas, int npecas, int nlin, int ncol);
-static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
-static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col);
+static void puzzle(Peca *pecas, int npecas);
+static bool direita( int npecas, Peca **solucao, Peca *pecas, int line, int col);
+static bool baixo( int npecas, Peca **solucao, Peca *pecas, int line, int col);
 static bool pre_process(Peca *pecas, int npecas); // concluido
-void impressao(Peca **solucao, int nlin, int ncol, bool state); // concluido
+static vector<int> compatibilidades(Peca *pecas, int n1, int n2);
+void impressao(Peca **solucao, bool state); // concluido
+
+
 
 
 int main() {
 
     ios_base::sync_with_stdio(0);
     cin.tie(0);
-    int ntest, npecas, nlin, ncol;
+    int ntest, npecas;
     cin >> ntest;
 
     for (int i = 0; i < ntest; i++) {
@@ -47,9 +51,11 @@ int main() {
 
         bool state = pre_process(pecas, npecas);
         if (state)
-            puzzle(pecas, npecas, nlin, ncol);
+            puzzle(pecas, npecas);
         else
             cout << "impossible puzzle!\n";
+
+        CompMap.clear();
     }
 
     return 0;
@@ -58,7 +64,7 @@ int main() {
 static bool pre_process(Peca *pecas, int npecas) {
     int arr[1000];
     int count = 0;
-    
+
     for (int i = 0; i < 1000; i++) {
         arr[i] = 0;
     }
@@ -82,7 +88,7 @@ static bool pre_process(Peca *pecas, int npecas) {
 }
 
 
-static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
+static void puzzle(Peca *pecas, int npecas) {
     Peca **solucao = new Peca *[nlin];
 
     //inicializar a solucao a 0
@@ -93,35 +99,28 @@ static void puzzle(Peca *pecas, int npecas, int nlin, int ncol) {
     //primeira peca
     solucao[0][0] = pecas[0];
     pecas[0].posta = 1;
-    
+
+
     bool state;
     if (ncol == 1) {
-        state = baixo(nlin, ncol, npecas, solucao, pecas, 1, 0);
+        state = baixo(npecas, solucao, pecas, 1, 0);
     } else {
-        state = direita(nlin, ncol, npecas, solucao, pecas, 0, 1);
+        state = direita( npecas, solucao, pecas, 0, 1);
     }
 
-    /*
-    //impressao solucao
-    for (int i = 0; i < nlin; ++i) {
-        for (int j = 0; j < ncol; ++j) {
-            for (int k = 0; k < 4; ++k) {
-                cout << "solucao2222: " << solucao[i][j].numero[k] << "\n";
-            }
-            cout << "-------------------\n";
-        }
-    }*/
-
-    impressao(solucao, nlin, ncol, state);
+    impressao(solucao, state);
 }
 
-static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
-    
+static bool direita( int npecas, Peca **solucao, Peca *pecas, int line, int col) {
+    vector<int> peca = compatibilidades(pecas, solucao[line][col - 1].numero[2], solucao[line][col - 1].numero[1]);
+
     if (col == ncol and line == nlin - 1) { //caso base
         return true;
     }
+    int pos;
 
-    for (int pos = 1; pos < npecas; pos++) {
+    for (int k = 0; k < (int)peca.size(); k++) {
+        pos = peca[k];
         if (pecas[pos].posta == 0) { //a peca nao esta posta, vai tentar por
             for (int i = 0; i < 4; i++) {
                 if (line == 0) {
@@ -132,10 +131,10 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
                         pecas[pos].posta = 1;
 
                         if (col < ncol - 1) {
-                            if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                            if (direita( npecas, solucao, pecas, line, col + 1))
                                 return true;
                         } else {
-                            if (baixo(nlin, ncol, npecas, solucao, pecas, line + 1, 0))
+                            if (baixo( npecas, solucao, pecas, line + 1, 0))
                                 return true;
                         }
                     }
@@ -151,11 +150,11 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
                         pecas[pos].posta = 1;
 
                         if (col < ncol - 1) {
-                            if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                            if (direita( npecas, solucao, pecas, line, col + 1))
                                 return true;
 
                         } else {
-                            if (baixo(nlin, ncol, npecas, solucao, pecas, line + 1, 0))
+                            if (baixo( npecas, solucao, pecas, line + 1, 0))
                                 return true;
                         }
                     }
@@ -169,12 +168,17 @@ static bool direita(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas,
     return false;
 }
 
-static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, int line, int col) {
+
+static bool baixo( int npecas, Peca **solucao, Peca *pecas, int line, int col) {
+    vector<int> peca = compatibilidades(pecas, solucao[line - 1][col].numero[3], solucao[line - 1][col].numero[2]);
+
+
     if (line == nlin) { //caso base
         return true;
     }
-
-    for (int pos = 0; pos < npecas; pos++) {
+    int pos;
+    for (int k = 0; k < (int)peca.size(); k++) {
+        pos = peca[k];
         if (pecas[pos].posta == 0) {
             for (int i = 0; i < 4; ++i) {
 
@@ -185,10 +189,10 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
                     pecas[pos].posta = 1;
 
                     if (ncol == 1) {
-                        if (baixo(nlin, ncol, npecas, solucao, pecas, line + 1, 0))
+                        if (baixo(npecas, solucao, pecas, line + 1, 0))
                             return true;
                     } else {
-                        if (direita(nlin, ncol, npecas, solucao, pecas, line, col + 1))
+                        if (direita( npecas, solucao, pecas, line, col + 1))
                             return true;
                     }
                 }
@@ -200,9 +204,30 @@ static bool baixo(int nlin, int ncol, int npecas, Peca **solucao, Peca *pecas, i
     return false;
 }
 
+static vector<int> compatibilidades(Peca *pecas, int n1, int n2) {
+    vector<int> peca;
+    array<int,2> arr {n1,n2};
+    auto it = CompMap.find(arr);
+
+    if(it == CompMap.end()){
+        for (int i = 0; i < (nlin*ncol); i++) {
+            for (int j = 0; j < 4; j++) {
+                if(pecas[i].numero[j] == n1 and pecas[i].numero[(j+1)%4] == n2){
+                    peca.push_back(i);
+                    break;
+                }
+            }
+        }
+        CompMap.insert({arr,peca});
+        return peca;
+    }else{
+        return it->second;
+    }
+}
+
 
 //concluido
-void impressao(Peca **solucao, int nlin, int ncol, bool state) {
+void impressao(Peca **solucao, bool state) {
     int aux;
 
     if (!state) {
@@ -233,21 +258,3 @@ void impressao(Peca **solucao, int nlin, int ncol, bool state) {
         }
     }
 }
-
-
-/*
- * Input
-3
-3 1 3
-2 5 1 3
-1 5 4 5
-3 2 5 4
-2 2 1
-1 2 3 4
-4 1 3 4
-4 2 2
-1 2 3 4
-1 3 2 5
-4 2 3 1
-5 4 3 2
- */
