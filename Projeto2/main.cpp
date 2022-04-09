@@ -44,20 +44,22 @@ int main() {
 void funcao(vector<vector<int>> nos) {
     for (int pos = 0; pos < len; pos++) {
         if (nos[pos].size() == 2) {
-            cout << "folhas: " << nos[pos][0] << "\n";
+            //cout << "folhas: " << nos[pos][0] << "\n";
             check_rec(nos[pos][0], nos);
         }
     }
 
     int custo = 0;
+    //cout << "size rec: " << rec.size() << "\n";
     for (int i = 0; i < rec.size(); i++) {
         for (int pos = 0; pos < len ; pos++) {
-            if( nos[pos][0] == rec[i])
-                custo += nos[pos][-1];
+            if( nos[pos][0] == rec[i]) {
+                //cout << "custo: " << nos[pos].back() << "\n";
+                custo += nos[pos].back();
+            }
         }
     }
     int count = rec.size();
-
     cout << count << " " << custo << endl;
 
 
@@ -84,12 +86,12 @@ void check_rec(int id, vector<vector<int>> nos) {
         int nolen = nos[pos].size();
         for (int i = 1; i < nolen - 1; i++) {
             if (nos[pos][i] == id) {
-                cout << "recrutador: " << nos[pos][0] << "\n";
+                //cout << "recrutador: " << nos[pos][0] << "\n";
                 if(!rec.empty()) {
                     for (int j = 0; j < rec.size(); j++) {
                         if (nos[pos][0] != rec[j])
                             aux++;
-                        cout << "comp: " << aux << "\n";
+                        //cout << "comp: " << aux << "\n";
                         if (aux == rec.size())
                             rec.push_back(nos[pos][0]);
                     }
