@@ -49,7 +49,7 @@ void funcao(vector<vector<int>> nos) {
         }
     }
 
-    int custo = 0;
+    int custo = 0, count = 0;
     //cout << "size rec: " << rec.size() << "\n";
     for (int i = 0; i < rec.size(); i++) {
         for (int pos = 0; pos < len ; pos++) {
@@ -59,7 +59,7 @@ void funcao(vector<vector<int>> nos) {
             }
         }
     }
-    int count = rec.size();
+    count = rec.size();
     cout << count << " " << custo << endl;
 
 
