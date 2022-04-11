@@ -1,38 +1,33 @@
 #include <iostream>
 #include <vector>
+
 using namespace std;
-int len;
+int len, custo;
 vector<int> rec;
 
 void funcao(vector<vector<int>> nos);
+
 void check_rec(int id, vector<vector<int>> nos);
 
 int main() {
     int n;
     vector<vector<int>> nos;
-    while (cin >> n){
-        //cout << n << "\n";
+    while (cin >> n) {
         if (n != -1) {
             vector<int> linha;
             linha.push_back(n);
 
-            while(cin.peek() != '\n') {
+            while (cin.peek() != '\n') {
                 cin >> n;
-                //cout << "n: " << n << " / ";
                 linha.push_back(n);
             }
-            //cout << "\n";
+
             nos.push_back(linha);
-
-            /*for (int s: linha){
-                cout << "linha: " << s << " | ";
-            }*/
-
             linha.clear();
-            //cout << "\n";
+
         } else {
-            len = (int)nos.size();
-            //cout << "len: " << len << "\n";
+            len = (int) nos.size();
+
             funcao(nos);
             nos.clear();
         }
@@ -42,33 +37,21 @@ int main() {
 }
 
 void funcao(vector<vector<int>> nos) {
+    custo = 0;
     for (int pos = 0; pos < len; pos++) {
         if (nos[pos].size() == 2) {
             //cout << "folhas: " << nos[pos][0] << "\n";
+            //cout << "---> inicio 1: " << custo << "\n";
             check_rec(nos[pos][0], nos);
+            //cout << "custo f: " << custo << "\n";
         }
     }
 
-    int custo = 0, count = 0;
     //cout << "size rec: " << rec.size() << "\n";
-    for (int i = 0; i < (int)rec.size(); i++) {
-        for (int pos = 0; pos < len ; pos++) {
-            if( nos[pos][0] == rec[i]) {
-                //cout << "custo: " << nos[pos].back() << "\n";
-                custo += nos[pos].back();
-            }
-        }
-    }
-    count = rec.size();
+
+    int count = rec.size();
     cout << count << " " << custo << endl;
-
-
-    /*
-     * verificar o tamanho da linha (nos[pos])
-     * se for > 2 é porque tem pelo menos 1 recrutado
-     * verificar se conseguimos verificar a existência de todos os recrutados
-     */
-
+    rec.clear();
     /* impressao
     for (int i = 0; i < nos.size(); ++i) {
         for (int j: nos[i]){
@@ -87,21 +70,27 @@ void check_rec(int id, vector<vector<int>> nos) {
         for (int i = 1; i < nolen - 1; i++) {
             if (nos[pos][i] == id) {
                 //cout << "recrutador: " << nos[pos][0] << "\n";
-                if(!rec.empty()) {
-                    for (int j = 0; j < (int)rec.size(); j++) {
+                if (!rec.empty()) {
+                    for (int j = 0; j < (int) rec.size(); j++) {
                         if (nos[pos][0] != rec[j])
                             aux++;
                         //cout << "comp: " << aux << "\n";
-                        if (aux == (int)rec.size())
+                        if (aux == (int) rec.size()) {
                             rec.push_back(nos[pos][0]);
+                            //cout << "custo11111111111111111: " << nos[pos].back() << "\n";
+                            custo += nos[pos].back();
+                        }
                     }
                 } else {
                     rec.push_back(nos[pos][0]);
+                    //cout << "custo2222222222222222222222: " << nos[pos].back() << "\n";
+                    custo += nos[pos].back();
                 }
             }
         }
     }
 }
+
 
 /*
 0 1 1
@@ -121,4 +110,7 @@ void check_rec(int id, vector<vector<int>> nos) {
 7 12
 8 23
 -1
+
+2 10
+3 91
  */
