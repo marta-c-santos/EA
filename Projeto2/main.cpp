@@ -2,12 +2,9 @@
 #include <vector>
 
 using namespace std;
-int len, custo;
-vector<int> rec;
 
 void funcao(vector<vector<int>> nos);
-
-void check_rec(int id, vector<vector<int>> nos);
+void check_rec(vector<vector<int>> nos, vector<int> final[], int atual, int anterior);
 
 int main() {
     int n;
@@ -26,8 +23,6 @@ int main() {
             linha.clear();
 
         } else {
-            len = (int) nos.size();
-
             funcao(nos);
             nos.clear();
         }
@@ -36,61 +31,50 @@ int main() {
     return 0;
 }
 
-void funcao(vector<vector<int>> nos) {
-    custo = 0;
-    for (int pos = 0; pos < len; pos++) {
-        if (nos[pos].size() == 2) {
-            //cout << "folhas: " << nos[pos][0] << "\n";
-            //cout << "---> inicio 1: " << custo << "\n";
-            check_rec(nos[pos][0], nos);
-            //cout << "custo f: " << custo << "\n";
-        }
-    }
+void funcao(vector<vector<int>> nos){
+    vector<int> final[nos.size() + 1];
 
-    //cout << "size rec: " << rec.size() << "\n";
-
-    int count = rec.size();
-    cout << count << " " << custo << endl;
-    rec.clear();
-    /* impressao
     for (int i = 0; i < nos.size(); ++i) {
-        for (int j: nos[i]){
-            cout << "linha: " << j << " | ";
-        }
-        cout << "\n";
+        final[i].push_back(0);
+
+        final[i].push_back(1);
     }
-    cout << "\n\n";*/
+
+    check_rec(nos, final, 0, -1);
+
+    cout << min(final[1][0], final[1][1]) << endl;
 }
 
+void check_rec(vector<vector<int>> nos, vector<int> final[], int atual, int anterior) {
+    cout << "atual: " << atual  << " anterior: " << anterior << "\n";
+    vector<int> custo;
 
-void check_rec(int id, vector<vector<int>> nos) {
-    int aux = 0;
-    for (int pos = 0; pos < len; pos++) {
-        int nolen = nos[pos].size();
-        for (int i = 1; i < nolen - 1; i++) {
-            if (nos[pos][i] == id) {
-                //cout << "recrutador: " << nos[pos][0] << "\n";
-                if (!rec.empty()) {
-                    for (int j = 0; j < (int) rec.size(); j++) {
-                        if (nos[pos][0] != rec[j])
-                            aux++;
-                        //cout << "comp: " << aux << "\n";
-                        if (aux == (int) rec.size()) {
-                            rec.push_back(nos[pos][0]);
-                            //cout << "custo11111111111111111: " << nos[pos].back() << "\n";
-                            custo += nos[pos].back();
-                        }
-                    }
-                } else {
-                    rec.push_back(nos[pos][0]);
-                    //cout << "custo2222222222222222222222: " << nos[pos].back() << "\n";
-                    custo += nos[pos].back();
-                }
-            }
+    vector<int> rec = nos.at(atual);
+
+    for (int pos = 1; pos < (int) rec.size() - 1; pos++) {
+        if (rec[pos] != anterior) {
+            check_rec(nos, final, rec[pos], atual);
         }
     }
-}
 
+    for (int pos = 1; pos < (int) rec.size() - 1; pos++) {
+        if (rec[pos] != anterior) {
+            custo.push_back(nos.at(atual).back());
+            // in
+            final[atual][0] += final[atual][1];
+            // out
+            final[atual][1] += min(final[atual][1], final[atual][0]);
+        }
+    }
+
+    int c;
+    for (int i = 0; i < custo.size(); ++i) {
+        cout << "custo: " << custo[i] << "\n";
+        c += custo[i];
+    }
+
+    cout << "custo final: " << c << "\n";
+}
 
 /*
 0 1 1
