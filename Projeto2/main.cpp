@@ -3,8 +3,7 @@
 
 using namespace std;
 
-void funcao(vector<vector<int>> nos);
-void check_rec(vector<vector<int>> nos, vector<int> final[], int atual, int anterior);
+int funcao(vector<vector<int>> nos, int atual);
 
 int main() {
     int n;
@@ -23,7 +22,7 @@ int main() {
             linha.clear();
 
         } else {
-            funcao(nos);
+            funcao(nos, 0);
             nos.clear();
         }
     }
@@ -31,50 +30,58 @@ int main() {
     return 0;
 }
 
-void funcao(vector<vector<int>> nos){
-    vector<int> final[nos.size() + 1];
 
-    for (int i = 0; i < nos.size(); ++i) {
-        final[i].push_back(0);
+int funcao(vector<vector<int>> nos, int atual) {
+    //vector<int> final_in;
+    //vector<int> final_out;
+    vector<int> recrutados = nos.at(atual);
 
-        final[i].push_back(1);
+    for (int rec: recrutados) {
+        cout << "rec: " << rec << "\n";
     }
 
-    check_rec(nos, final, 0, -1);
+    int final_in = 0, final_out = 0;
+    if (nos.size() <= 1) { //apenas 1 no
+        return 0;
+    }
 
-    cout << min(final[1][0], final[1][1]) << endl;
-}
+    if(recrutados.size() < 2){ //sem no filho
+        return 0;
+    }
 
-void check_rec(vector<vector<int>> nos, vector<int> final[], int atual, int anterior) {
-    cout << "atual: " << atual  << " anterior: " << anterior << "\n";
-    vector<int> custo;
+    //in
+    cout << "custo1: " << recrutados.back() << "\n";
+    cout << "tamanho rec: " << recrutados.size() << "\n";
 
-    vector<int> rec = nos.at(atual);
+    for (int i = 1; i < (int) recrutados.size() - 1; i++) {
+        cout << "--------------i: " << i << "\n";
+        int a = funcao(nos, recrutados[i]);
+        cout << "a: " << a << "\n";
+        final_in += a;
+        cout << "final_in: " << final_in << "\n";
+    }
 
-    for (int pos = 1; pos < (int) rec.size() - 1; pos++) {
-        if (rec[pos] != anterior) {
-            check_rec(nos, final, rec[pos], atual);
+
+    //out
+
+    for (int i = 1; i < (int) recrutados.size() - 1; i++) {
+        cout << "---->recrutdossss: " << recrutados[i] << "\n";
+
+        cout << "tamanho da linha: " << nos[i].size() << "\n";
+        if (nos[i].size() >= 3) { //verificar se tem no filho
+            cout << "if\n";
+            for (int j = 1; j < (int) nos.at(recrutados[i]).size() -1 ; j++) {
+                cout << "!!!!!!!!!!!!!recrutadosss: " << nos.at(recrutados[j])[i] << "\n";
+                final_out += funcao(nos, nos.at(recrutados[j])[i]);
+                cout << "final_out: " << final_in << "\n";
+            }
         }
     }
 
-    for (int pos = 1; pos < (int) rec.size() - 1; pos++) {
-        if (rec[pos] != anterior) {
-            custo.push_back(nos.at(atual).back());
-            // in
-            final[atual][0] += final[atual][1];
-            // out
-            final[atual][1] += min(final[atual][1], final[atual][0]);
-        }
-    }
-
-    int c;
-    for (int i = 0; i < custo.size(); ++i) {
-        cout << "custo: " << custo[i] << "\n";
-        c += custo[i];
-    }
-
-    cout << "custo final: " << c << "\n";
+    cout << "custo2: " << recrutados.back() << "\n";
+    return min(final_in, final_out);
 }
+
 
 /*
 0 1 1
