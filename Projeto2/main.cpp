@@ -2,29 +2,47 @@
 #include <vector>
 
 using namespace std;
-int minimo;
-int funcao(vector<vector<int>> nos, int atual);
+
+class No {
+public:
+    int id = 0;
+    pair<int, int> usado;       // quantidade + custo
+    pair<int, int> n_usado;
+
+    vector<int> recrutados;
+    int custo = 0;
+};
+
+pair<int, int> filhos_usados;
+pair<int, int> best_filhos;
+pair<int, int> res;
+
+void funcao(vector<No> nos, int id_atual, int n_filhos);
 
 int main() {
     int n;
-    vector<vector<int>> nos;
+    vector<No> arvore;
     while (cin >> n) {
         if (n != -1) {
             vector<int> linha;
-            linha.push_back(n);
-
+            //criar o no
+            No no;
+            no.id = n;
             while (cin.peek() != '\n') {
                 cin >> n;
                 linha.push_back(n);
             }
 
-            nos.push_back(linha);
+            no.custo = (int) linha.back();
+            no.recrutados = linha;
             linha.clear();
+            arvore.push_back(no);
 
         } else {
-            int res = funcao(nos, 0);
-            cout << "Resultado: " << res << "\n";
-            nos.clear();
+
+            funcao(arvore, 0, 0);
+            cout << "acabei!\n";
+            //cout << "Resultado: " << res << "\n";
         }
     }
 
@@ -32,62 +50,79 @@ int main() {
 }
 
 
-int funcao(vector<vector<int>> nos, int atual) {
-    //vector<int> final_in;
-    //vector<int> final_out;
-    int final_in = 0, final_out = 0;
-    vector<int> recrutados = nos.at(atual);
+void funcao(vector<No> nos, int id_atual, int n_filhos) {
+    cout << "----------------->atual: " << id_atual << "\n";
 
-    for (int rec: recrutados) {
-        cout << "rec: " << rec << "\n";
-    }
-
-    if (nos.size() <= 1) { //apenas 1 no
-        cout << "-----------------------------------primeiro if\n";
-        return 0;
-    }
-
-    if(recrutados.size() < 2){ //sem no filho
-        cout << "----------------------------------segundo if\n";
-        return 0;
-    }
-
-    if(minimo != -1){
-        return minimo;
-    }
-
-    //in
-    cout << "custo1: " << recrutados.back() << "\n";
-    cout << "tamanho rec: " << recrutados.size() << "\n";
-
-    for (int i = 1; i < (int) recrutados.size() - 1; i++) {
-        cout << "----------rec: " << recrutados[1] << "\n";
-        int a = 1 + funcao(nos, recrutados[i]);
-        cout << "a: " << a << "\n";
-        final_in += a;
-        cout << "final_in: " << final_in << "\n";
-    }
-
-    //out
-    for (int i = 1; i < (int) recrutados.size() - 1; i++) {
-        cout << "---->recrutdossss: " << recrutados[i] << "\n";
-
-        cout << "tamanho da linha: " << nos[i].size() << "\n";
-        if (nos[i].size() >= 3) { //verificar se tem no filho
-            cout << "if\n";
-            for (int j = 1; j < nos.at(recrutados[i]).size() - 1; j++) {
-                cout << "!!!!!!!!!!!!!recrutadosss: " << nos.at(recrutados[j])[i] << "\n";
-                final_out += 1 + funcao(nos, nos.at(recrutados[j])[i]);
-                cout << "final_out: " << final_in << "\n";
-            }
+    /*
+    for (No n: nos) {
+        for (int i = 0; i < (int) n.recrutados.size(); ++i) {
+            cout << "rec: " << n.recrutados[i] << "\n";
         }
+    }*/
+
+    for (No n: nos) {
+        if (n.id == id_atual) {
+            cout << "estou no 1ºif tantan\n";
+            if ((int) n.recrutados.size() >= 2) {
+                cout << ">>>>entrei no if\n";
+                int n1 = (int) n.recrutados.size();
+                for (int rec = 0; rec < (int) n.recrutados.size() - 1; rec++) {
+
+                    funcao(nos, n.recrutados[rec], n1);
+                    n1--;
+
+                    //somados usados dos filhos
+                    n.n_usado.first = filhos_usados.first;
+                    n.n_usado.second = filhos_usados.second;
+
+                    //proprio caso usado + melhor caso de todos os filhos
+                    n.usado.first = 1 + best_filhos.first;
+                    n.usado.second = n.custo + best_filhos.second;
+                }
+
+                if( n_filhos == 0) {
+                    //dar reset
+                    filhos_usados.first = 0;
+                    filhos_usados.second = 0;
+                    best_filhos.first = 0;
+                    best_filhos.second = 0;
+                }
+
+
+            } else { // nao tem filhos
+                cout << ">>>>entrei no else\n";
+                n.n_usado.first = 0;
+                n.n_usado.second = 0;
+                n.usado.first = 1;
+                n.usado.second = n.custo;
+                if(n_filhos > 0) {
+                    filhos_usados.first += n.usado.first;
+                    filhos_usados.second += n.usado.second;
+
+                    if (n.n_usado.first > n.usado.first) {
+                        best_filhos.first = n.n_usado.first;
+                        best_filhos.second = n.n_usado.second;
+
+                    } else if (n.n_usado.first == n.usado.first) {
+
+                        if (n.n_usado.second > n.usado.second) {
+                            best_filhos.first = n.n_usado.first;
+                            best_filhos.second = n.n_usado.second;
+                        } else {
+                            best_filhos.first = n.usado.first;
+                            best_filhos.second = n.usado.second;
+                        }
+
+                    } else {
+                        best_filhos.first = n.usado.first;
+                        best_filhos.second = n.usado.second;
+                    }
+                }
+            }
+
+        }
+
     }
-
-    cout << "custo2: " << recrutados.back() << "\n";
-    minimo = min(final_in, final_out);
-
-    cout << "minimo: " << minimo << "\n";
-    return minimo;
 }
 
 
@@ -112,4 +147,16 @@ int funcao(vector<vector<int>> nos, int atual) {
 
 2 10
 3 91
+
+Teste Goncalo:
+0 1 2 3 5
+1 4 5 14
+2 6 3
+3 10
+4 8
+5 3
+-1
+
+3 39
+
  */
