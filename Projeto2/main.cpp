@@ -121,7 +121,8 @@ void funcao(vector<No> nos, int id_atual, int n_filhos) {
             }
 
         }
-
+        // verificar se e o ultimo no
+        // ver qual dos nos e maio (usado ou n_usado)
     }
 }
 
