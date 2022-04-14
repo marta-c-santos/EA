@@ -16,8 +16,9 @@ public:
 pair<int, int> filhos_usados;
 pair<int, int> best_filhos;
 pair<int, int> res;
+int irmaos;
 
-void funcao(vector<No> nos, int id_atual, int filhos_pai);
+void funcao(vector<No> nos, int id_atual, int filhos_pai, int primeiro);
 
 int main() {
     int n;
@@ -40,7 +41,7 @@ int main() {
 
         } else {
 
-            funcao(arvore, 0, (int) arvore.at(0).recrutados.size() - 1);
+            funcao(arvore, 0, (int) arvore.at(0).recrutados.size() - 1, 0);
             cout << "acabei!\n";
             cout << "Resultado: " << res.first << " " << res.second << "\n";
         }
@@ -50,7 +51,7 @@ int main() {
 }
 
 
-void funcao(vector<No> nos, int id_atual, int filhos_pai) {
+void funcao(vector<No> nos, int id_atual, int filhos_pai, int primeiro) {
     cout << "----------------->atual: " << id_atual << "\n";
 
     /*
@@ -66,13 +67,14 @@ void funcao(vector<No> nos, int id_atual, int filhos_pai) {
             if ((int) n.recrutados.size() >= 2) { // tem pelo menos 1 filho
                 //cout << ">>>>entrei no if\n";
                 filhos_pai = (int) n.recrutados.size() - 1;
+                irmaos = filhos_pai - 1;                    // este valor nao esta correto a partir do caso do no 1
                 cout << "numero de filhos: " << filhos_pai << "\n";
 
-                filhos_usados = make_pair(0,0);
+                //filhos_usados = make_pair(0,0);
                 for (int rec = 0; rec < (int) n.recrutados.size() - 1; rec++) {
                     cout << "id " << n.id << " filhos: " << filhos_pai << "\n";
                     filhos_pai--;
-                    funcao(nos, n.recrutados[rec], filhos_pai);
+                    funcao(nos, n.recrutados[rec], filhos_pai, rec);
                 }
 
 
@@ -97,8 +99,23 @@ void funcao(vector<No> nos, int id_atual, int filhos_pai) {
                     best_filhos = make_pair(n.n_usado.first, n.n_usado.second);
                 }
                 // filhos usados
-                filhos_usados = make_pair(n.usado.first, n.usado.second);
-                cout << " ************************ " << best_filhos.first << " " << best_filhos.second << "\n";
+                //filhos_usados = make_pair(n.usado.first, n.usado.second);
+                cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>1111Filhos do " << n.id << " sao irmaos: " << irmaos << "\n";
+                // verificar se tiver irmaos
+                if (irmaos != 0) {
+                    if (primeiro != 0) { // nao e o primeiro no dos irmaos
+                        filhos_usados.first += n.usado.first;
+                        filhos_usados.second += n.usado.second;
+                    } else {
+                        filhos_usados.first = n.usado.first;
+                        filhos_usados.second = n.usado.second;
+                    }
+                } else { // se nao tiver irmaos
+                    filhos_usados.first = n.usado.first;
+                    filhos_usados.second = n.usado.second;
+                    cout << "*.*.*.*.*.*.*.*.*.*.*.*.* " << filhos_usados.first << " " << filhos_usados.second << "\n";
+                }
+                cout << "************************* " << best_filhos.first << " " << best_filhos.second << "\n";
 
 
                 cout << "----------------------------------------------------------id: " << n.id << " nfilhos: " << filhos_pai << "\n";
@@ -116,11 +133,18 @@ void funcao(vector<No> nos, int id_atual, int filhos_pai) {
                 n.usado = make_pair(1, n.custo);
 
                 cout << "elseeeee, sem filhos, mas filhos_pai = " << filhos_pai << "\n";
-                if (filhos_pai >= 0) { //
+                if (filhos_pai >= 0) { //if inutil
                     cout << ".............usado first: " << n.usado.first << " ... " << n.usado.second << "\n";
 
-                    filhos_usados.first += n.usado.first;
-                    filhos_usados.second += n.usado.second;
+                    //usar so em caso de ter irmaos
+                    cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Filhos do " << n.id << " sao irmaos: " << irmaos << "\n";
+                    if (irmaos != 0) {
+                        filhos_usados.first += n.usado.first;
+                        filhos_usados.second += n.usado.second;
+                    } else {
+                        filhos_usados.first = n.usado.first;
+                        filhos_usados.second = n.usado.second;
+                    }
 
                     cout << "................filhos usados: " << filhos_usados.first << " ... " << filhos_usados.second << "\n";
 
@@ -156,7 +180,7 @@ void funcao(vector<No> nos, int id_atual, int filhos_pai) {
 
         }
         // verificar se e o ultimo no
-        // ver qual dos nos e maio (usado ou n_usado)
+        // ver qual dos nos e mais (usado ou n_usado)
 
     }
 }
