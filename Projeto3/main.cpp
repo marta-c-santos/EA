@@ -5,12 +5,10 @@
 using namespace std;
 
 void funcao(vector<vector<int>> operacoes, int stat);
-
 bool valid(vector<vector<int>> operacoes);
-
-vector<int> ordenar(vector<vector<int>> operacoes);
-
+vector <int> ordenar(vector<vector<int>> operacoes);
 int minimo(vector<vector<int>> operacoes);
+void congestionamento(vector<vector<int>> operacoes);
 
 int main() {
     int n_op, time, n_dep, dep, stat;
@@ -40,8 +38,9 @@ int main() {
     }
     cout << stat;
      */
-
-    funcao(operacoes, stat);
+    if(!operacoes.empty()) {
+        funcao(operacoes, stat);
+    }
 
 }
 
@@ -60,7 +59,7 @@ void funcao(vector<vector<int>> operacoes, int stat) {
             int tempo_total = 0;
 
             // imprimir o tempo todo
-            for (int i = 0; i < operacoes.size(); i++) {
+            for (int i = 0; i < (int)operacoes.size(); i++) {
                 tempo_total += operacoes[i][0];
             }
             cout << tempo_total << "\n";
@@ -77,7 +76,7 @@ void funcao(vector<vector<int>> operacoes, int stat) {
             int tempo = minimo(operacoes);
             cout << tempo << "\n";
         } else if (stat == 3) {
-
+            congestionamento(operacoes);
         } else { // tem de dar erro
 
         }
@@ -85,30 +84,75 @@ void funcao(vector<vector<int>> operacoes, int stat) {
         cout << "INVALID";
     }
 }
+void congestionamento(vector<vector<int>> operacoes) {
+    vector<int> total;
+    vector<int> not_terminal;
 
-int minimo(vector<vector<int>> operacoes) {
-    int aux, tempo = 0;
-    for (int i = 0; i < operacoes.size(); ++i) {
-        if (operacoes[i].size() == 2) { //sem dependencias
-            tempo += operacoes[i][0];
-        }
-        if (operacoes[i].size() == 3) { //1 dependencia
-            cout << "1: " << operacoes.at(operacoes[i][2])[0] << "\n";
-            tempo += operacoes.at(operacoes[i][2])[0];
-        } else if (operacoes[i].size() > 3) { //tem varias dependencias
-            for (int j = 2; j < operacoes[i].size(); j++) {
-                if (aux < operacoes.at(operacoes[i][i])[0]) {
-                    aux = operacoes.at(operacoes[i][i])[0];
-                }
-            }
-            cout << "aux: " << aux << "\n";
-            tempo += aux;
-        }
-
-        cout << "tempo: " << tempo << "\n";
-
+    for (int i = 0; i < (int)operacoes.size(); ++i) {
+        not_terminal.push_back(i+1);
     }
 
+    for (int i = 0; i < (int)operacoes.size(); ++i) {
+        if ((int)operacoes[i].size() == 2) {
+            total.push_back(i+1);
+        }
+        else if ((int)operacoes[i].size() > 3) {
+            total.push_back(i+1);
+        }
+
+        int no = i + 1;
+        for (int j = 0; j < (int)operacoes.size(); j++) {
+            for (int k = 2; k < (int)operacoes[j].size(); k++) {
+                auto r = find(not_terminal.begin(), not_terminal.end(), no); //verifica se o no ja nao e terminal
+                if (no == operacoes[j][k] and r != not_terminal.end()) {
+                    auto r = std::find(not_terminal.begin(), not_terminal.end(), no);
+                    not_terminal.erase(r);
+                }
+            }
+        }
+    }
+
+    total.push_back(not_terminal[0]);
+
+    for (int id: total) {
+        cout << id << "\n";
+    }
+}
+
+int minimo(vector<vector<int>> operacoes) {
+    int tempo = 0;
+    pair<int,int> aux;
+    vector<int> somados;
+
+    for (int i = 0; i < (int)operacoes.size(); i++) {
+        aux = make_pair(0,0);
+        if ((int)operacoes[i].size() > 2) { //tem dependencia
+            for (int j = 2; j < (int)operacoes[i].size(); j++) {
+                if (aux.second < operacoes.at(operacoes[i][j]-1)[0]) {
+                    aux.second = operacoes.at(operacoes[i][j]-1)[0];
+                    aux.first = operacoes[i][j];
+                }
+            }
+
+            //cout << "\naux: " << aux.second << "\n";
+            auto r = std::find(somados.begin(), somados.end(), aux.first);
+            if (r == somados.end()) {
+                tempo += aux.second;
+                somados.push_back(aux.first);
+            }
+        }
+
+        //cout << "tempo: " << tempo << "\n";
+
+    }
+    tempo += operacoes.back()[0];
+
+    /*cout << "somados: ";
+    for(int i: somados){
+        cout << i << " ";
+    }
+
+    cout << "\n\n";*/
 
     return tempo;
 }
@@ -118,18 +162,18 @@ vector<int> ordenar(vector<vector<int>> operacoes) {
     int no, no2;
 
     //cout << "tam: " << operacoes.size() << "\n";
-    for (int i = 0; i < operacoes.size(); i++) {
+    for (int i = 0; i < (int)operacoes.size(); i++) {
         //cout << "i: " << i << "\n";
         no = i + 1;
         if (ordenado.empty()) {
-            if (operacoes[i].size() == 2) {
+            if ((int)operacoes[i].size() == 2) {
                 ordenado.push_back(no);
             }
         }
 
         //cout << "procurando: " << no << "\n";
-        for (int j = 0; j < operacoes.size(); j++) {
-            for (int k = 2; k < operacoes[j].size(); k++) {
+        for (int j = 0; j < (int)operacoes.size(); j++) {
+            for (int k = 2; k < (int)operacoes[j].size(); k++) {
                 no2 = j + 1;
                 //cout << "\t comparando com: " << operacoes[j][k] << "\n";
                 auto r = std::find(ordenado.begin(), ordenado.end(), no2);
@@ -149,8 +193,8 @@ bool valid(vector<vector<int>> operacoes) {
     bool no_dep = false;
     vector<int> not_terminal;
 
-    for (int i = 0; i < operacoes.size(); i++) {
-        if (operacoes[i].size() == 2) { // nao tem dependencias
+    for (int i = 0; i < (int)operacoes.size(); i++) {
+        if ((int)operacoes[i].size() == 2) { // nao tem dependencias
             if (!no_dep) {
                 no_dep = true;
             } else {
@@ -159,8 +203,8 @@ bool valid(vector<vector<int>> operacoes) {
         }
 
         int no = i + 1;
-        for (int j = 0; j < operacoes.size(); j++) {
-            for (int k = 2; k < operacoes[j].size(); k++) {
+        for (int j = 0; j < (int)operacoes.size(); j++) {
+            for (int k = 2; k < (int)operacoes[j].size(); k++) {
                 auto r = find(not_terminal.begin(), not_terminal.end(), no); //verifica se no ja nao e terminal
                 if (no == operacoes[j][k] and r == not_terminal.end()) {
                     not_terminal.push_back(no);
@@ -171,7 +215,7 @@ bool valid(vector<vector<int>> operacoes) {
 
     // compara retira os nos que nao sao terminais
     // descubrindo o nº de nos terminais
-    if (operacoes.size() - not_terminal.size() > 1) {
+    if ((int)operacoes.size() - (int)not_terminal.size() > 1) {
         //cout << "nos terminais: " << operacoes.size() - not_terminal.size() << "\n";
         return false;
     }
