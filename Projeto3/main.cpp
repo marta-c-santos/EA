@@ -4,27 +4,37 @@
 
 using namespace std;
 
-void funcao(vector<vector<int>> operacoes, int stat);
-bool valid(vector<vector<int>> operacoes);
-vector <int> ordenar(vector<vector<int>> operacoes);
-int minimo(vector<vector<int>> operacoes);
-void congestionamento(vector<vector<int>> operacoes);
+class Tarefas {
+public:
+    vector<int> dep;
+    bool terminal;
+    int time;
+    int n_dep;
+};
+
+void funcao(vector<Tarefas> operacoes, int stat);
+bool valid(vector<Tarefas> operacoes);
+vector <int> ordenar(vector<Tarefas> operacoes);
+int minimo(vector<Tarefas> operacoes);
+void congestionamento(vector<Tarefas> operacoes);
 
 int main() {
     int n_op, time, n_dep, dep, stat;
-    vector<vector<int>> operacoes;
+    vector<Tarefas> operacoes;
     vector<int> line;
 
     cin >> n_op;
+    Tarefas t;
     for (int i = 0; i < n_op; i++) {
         cin >> time >> n_dep;
-        line.push_back(time);
-        line.push_back(n_dep);
+        t.time = time;
+        t.n_dep = n_dep;
         for (int j = 0; j < n_dep; j++) {
             cin >> dep;
             line.push_back(dep);
         }
-        operacoes.push_back(line);
+        t.dep = line;
+        operacoes.push_back(t);
         line.clear();
     }
     cin >> stat;
@@ -44,13 +54,8 @@ int main() {
 
 }
 
-void funcao(vector<vector<int>> operacoes, int stat) {
-    /*
-     * .
-     * .
-     * .
-     */
 
+void funcao(vector<Tarefas> operacoes, int stat) {
     // verificacao das estatisticas
     if (valid(operacoes)) {
         if (stat == 0) {
@@ -60,7 +65,7 @@ void funcao(vector<vector<int>> operacoes, int stat) {
 
             // imprimir o tempo todo
             for (int i = 0; i < (int)operacoes.size(); i++) {
-                tempo_total += operacoes[i][0];
+                tempo_total += operacoes[i].time;
             }
             cout << tempo_total << "\n";
 
@@ -84,7 +89,7 @@ void funcao(vector<vector<int>> operacoes, int stat) {
         cout << "INVALID";
     }
 }
-void congestionamento(vector<vector<int>> operacoes) {
+void congestionamento(vector<Tarefas> operacoes) {
     vector<int> total;
     vector<int> not_terminal;
 
@@ -119,7 +124,7 @@ void congestionamento(vector<vector<int>> operacoes) {
     }
 }
 
-int minimo(vector<vector<int>> operacoes) {
+int minimo(vector<Tarefas> operacoes) {
     int tempo = 0;
     pair<int,int> aux;
     vector<int> somados;
@@ -147,17 +152,10 @@ int minimo(vector<vector<int>> operacoes) {
     }
     tempo += operacoes.back()[0];
 
-    /*cout << "somados: ";
-    for(int i: somados){
-        cout << i << " ";
-    }
-
-    cout << "\n\n";*/
-
     return tempo;
 }
 
-vector<int> ordenar(vector<vector<int>> operacoes) {
+vector<int> ordenar(vector<Tarefas> operacoes) {
     vector<int> ordenado;
     int no, no2;
 
@@ -189,12 +187,12 @@ vector<int> ordenar(vector<vector<int>> operacoes) {
     return ordenado;
 }
 
-bool valid(vector<vector<int>> operacoes) {
+bool valid(vector<Tarefas> operacoes) {
     bool no_dep = false;
     vector<int> not_terminal;
 
     for (int i = 0; i < (int)operacoes.size(); i++) {
-        if ((int)operacoes[i].size() == 2) { // nao tem dependencias
+        if (operacoes[i].n_dep == 0) { // nao tem dependencias
             if (!no_dep) {
                 no_dep = true;
             } else {
