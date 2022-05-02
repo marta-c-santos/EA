@@ -1,26 +1,30 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
-
+#include <map>
 using namespace std;
 
 class Tarefas {
 public:
-    vector<int> dep;
+    int time;                   // tempo para processar
+    int n_dep;                  // numero de dependencias
+    vector<int> dep;            // dependencias
     bool terminal;
-    int time;
-    int n_dep;
+    vector<int> dep_filhos;     // nos q sao dependentes do no atual
+    bool pintado;
 };
 
-void funcao(vector<Tarefas> operacoes, int stat);
-bool valid(vector<Tarefas> operacoes);
-vector <int> ordenar(vector<Tarefas> operacoes);
-int minimo(vector<Tarefas> operacoes);
-void congestionamento(vector<Tarefas> operacoes);
+map<int, Tarefas> mapa_op;
+
+void funcao(int stat);
+bool valid();
+void ciclo(int no, bool pintado);
+vector <int> ordenar();
+int minimo();
+void congestionamento();
 
 int main() {
     int n_op, time, n_dep, dep, stat;
-    vector<Tarefas> operacoes;
     vector<int> line;
 
     cin >> n_op;
@@ -34,43 +38,33 @@ int main() {
             line.push_back(dep);
         }
         t.dep = line;
-        operacoes.push_back(t);
+        mapa_op.insert(make_pair(i+1,t));
         line.clear();
     }
     cin >> stat;
 
-    /* impressao
-    for(vector<int> a: operacoes) {
-        for(int b: a) {
-            cout << b << " ";
-        }
-        cout << "\n";
+    if(!mapa_op.empty()) {
+        funcao(stat);
     }
-    cout << stat;
-     */
-    if(!operacoes.empty()) {
-        funcao(operacoes, stat);
-    }
-
 }
 
 
-void funcao(vector<Tarefas> operacoes, int stat) {
+void funcao(int stat) {
     // verificacao das estatisticas
-    if (valid(operacoes)) {
+    if (valid()) {
         if (stat == 0) {
             cout << "VALID";
-        } else if (stat == 1) {
+        } /*else if (stat == 1) {
             int tempo_total = 0;
 
-            // imprimir o tempo todo
-            for (int i = 0; i < (int)operacoes.size(); i++) {
-                tempo_total += operacoes[i].time;
+            // imprimir o tempo total
+            for (int i = 0; i < int(mapa_op.size()); ++i) {
+                tempo_total += mapa_op[i].time;
             }
             cout << tempo_total << "\n";
 
             // printar ordem da qual vai correr
-            vector<int> ordenado = ordenar(operacoes);
+            vector<int> ordenado = ordenar();
             for (int i: ordenado) {
                 cout << i << "\n";
             }
@@ -78,53 +72,116 @@ void funcao(vector<Tarefas> operacoes, int stat) {
 
         } else if (stat == 2) {
             // imprimir o tempo minimo possivel
-            int tempo = minimo(operacoes);
+            int tempo = minimo();
             cout << tempo << "\n";
         } else if (stat == 3) {
-            congestionamento(operacoes);
+            congestionamento();
         } else { // tem de dar erro
 
-        }
+        }*/
     } else {
         cout << "INVALID";
     }
 }
-void congestionamento(vector<Tarefas> operacoes) {
-    vector<int> total;
-    vector<int> not_terminal;
 
-    for (int i = 0; i < (int)operacoes.size(); ++i) {
-        not_terminal.push_back(i+1);
-    }
+bool valid() {
+    bool no_dep = false;
+    vector<int> not_terminal(mapa_op.size());
 
-    for (int i = 0; i < (int)operacoes.size(); ++i) {
-        if ((int)operacoes[i].size() == 2) {
-            total.push_back(i+1);
+    for (int i = 1; i < (int)mapa_op.size(); i++) {
+        if (mapa_op[i].n_dep == 0) { // nao tem dependencias
+            if (!no_dep) {
+                no_dep = true;
+            } else {
+                return false;
+            }
         }
-        else if ((int)operacoes[i].size() > 3) {
-            total.push_back(i+1);
-        }
+
 
         int no = i + 1;
-        for (int j = 0; j < (int)operacoes.size(); j++) {
-            for (int k = 2; k < (int)operacoes[j].size(); k++) {
-                auto r = find(not_terminal.begin(), not_terminal.end(), no); //verifica se o no ja nao e terminal
-                if (no == operacoes[j][k] and r != not_terminal.end()) {
-                    auto r = std::find(not_terminal.begin(), not_terminal.end(), no);
-                    not_terminal.erase(r);
+        for (int j = 0; j < (int)mapa_op.size(); j++) {
+            for (int k = 0; k < (int)mapa_op[j].dep.size(); k++) {
+                // verifica se no nao e terminal
+                if (no == mapa_op[j].dep[k] and not_terminal.at(i) != no) {
+                    not_terminal.insert(not_terminal.begin() + i,no);
                 }
             }
         }
     }
+    // verifica se nao ha ciclos
+    //ciclo(no, pintado);
 
-    total.push_back(not_terminal[0]);
 
-    for (int id: total) {
-        cout << id << "\n";
+
+    // compara retira os nos que nao sao terminais
+    // descubrindo o nº de nos terminais
+    if ((int)mapa_op.size() - (int)not_terminal.size() > 1) {
+        //cout << "nos terminais: " << operacoes.size() - not_terminal.size() << "\n";
+        return false;
+    }
+
+    return true;
+}
+
+/*
+void ciclo(int no, bool pintado) {
+
+    if(!operacoes[no].pintado) {
+        operacoes[no].pintado = true;
+
+        for (int i = 0; i < (int)operacoes[no].dep.size(); i++) {
+            int no = operacoes[no].dep[i];
+            mapa.at(no);
+
+            if(operacoes[no].dep[i])
+        }
     }
 }
 
-int minimo(vector<Tarefas> operacoes) {
+
+// stat == 1
+vector<int> ordenar() {
+    vector<int> ordenado;
+    int no, no2;
+    int total = 0; // soma do tempo total
+
+    for (int i = 0; i < (int)operacoes.size(); i++) {
+        no = i + 1;
+        if (ordenado.empty()) {
+            if ((int)operacoes[i].n_dep == 0) { // nao existem dependencias
+                ordenado.push_back(no);
+                total += (int)operacoes[i].time;
+            }
+        } else {
+            // verificar se existem dependencias do no atual
+
+
+
+
+
+        }
+
+
+
+        for (int j = 0; j < (int)operacoes.size(); j++) {
+            for (int k = 2; k < (int)operacoes[j].dep.size(); k++) {
+                no2 = j + 1;
+                //cout << "\t comparando com: " << operacoes[j][k] << "\n";
+                auto r = std::find(ordenado.begin(), ordenado.end(), no2);
+                if (no == operacoes[j].dep[k] and r == ordenado.end()) {
+                    //cout << "\t\t\tmeti dentro: " << no << "\n";
+                    ordenado.push_back(no2);
+                }
+            }
+        }
+
+    }
+
+    return ordenado;
+}
+
+// stat == 2
+int minimo() {
     int tempo = 0;
     pair<int,int> aux;
     vector<int> somados;
@@ -155,68 +212,42 @@ int minimo(vector<Tarefas> operacoes) {
     return tempo;
 }
 
-vector<int> ordenar(vector<Tarefas> operacoes) {
-    vector<int> ordenado;
-    int no, no2;
-
-    //cout << "tam: " << operacoes.size() << "\n";
-    for (int i = 0; i < (int)operacoes.size(); i++) {
-        //cout << "i: " << i << "\n";
-        no = i + 1;
-        if (ordenado.empty()) {
-            if ((int)operacoes[i].size() == 2) {
-                ordenado.push_back(no);
-            }
-        }
-
-        //cout << "procurando: " << no << "\n";
-        for (int j = 0; j < (int)operacoes.size(); j++) {
-            for (int k = 2; k < (int)operacoes[j].size(); k++) {
-                no2 = j + 1;
-                //cout << "\t comparando com: " << operacoes[j][k] << "\n";
-                auto r = std::find(ordenado.begin(), ordenado.end(), no2);
-                if (no == operacoes[j][k] and r == ordenado.end()) {
-                    //cout << "\t\t\tmeti dentro: " << no << "\n";
-                    ordenado.push_back(no2);
-                }
-            }
-        }
-
-    }
-
-    return ordenado;
-}
-
-bool valid(vector<Tarefas> operacoes) {
-    bool no_dep = false;
+// stat == 3
+void congestionamento() {
+    vector<int> total;
     vector<int> not_terminal;
 
-    for (int i = 0; i < (int)operacoes.size(); i++) {
-        if (operacoes[i].n_dep == 0) { // nao tem dependencias
-            if (!no_dep) {
-                no_dep = true;
-            } else {
-                return false;
-            }
+    for (int i = 0; i < (int)operacoes.size(); ++i) {
+        not_terminal.push_back(i+1);
+    }
+
+    for (int i = 0; i < (int)operacoes.size(); ++i) {
+        if ((int)operacoes[i].size() == 2) {
+            total.push_back(i+1);
+        }
+        else if ((int)operacoes[i].size() > 3) {
+            total.push_back(i+1);
         }
 
         int no = i + 1;
         for (int j = 0; j < (int)operacoes.size(); j++) {
-            for (int k = 2; k < (int)operacoes[j].size(); k++) {
-                auto r = find(not_terminal.begin(), not_terminal.end(), no); //verifica se no ja nao e terminal
-                if (no == operacoes[j][k] and r == not_terminal.end()) {
-                    not_terminal.push_back(no);
+            for (int k = 0; k < (int)operacoes[j].dep.size(); k++) {
+                auto r = find(not_terminal.begin(), not_terminal.end(), no); //verifica se o no ja nao e terminal
+                if (no == operacoes[j].dep[k] and r != not_terminal.end()) {
+                    auto r = std::find(not_terminal.begin(), not_terminal.end(), no);
+                    not_terminal.erase(r);
                 }
             }
         }
     }
 
-    // compara retira os nos que nao sao terminais
-    // descubrindo o nº de nos terminais
-    if ((int)operacoes.size() - (int)not_terminal.size() > 1) {
-        //cout << "nos terminais: " << operacoes.size() - not_terminal.size() << "\n";
-        return false;
-    }
+    total.push_back(not_terminal[0]);
 
-    return true;
-}
+    for (int id: total) {
+        cout << id << "\n";
+    }
+}*/
+
+
+
+
