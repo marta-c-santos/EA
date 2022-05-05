@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+
 using namespace std;
 
 class Tarefas {
@@ -17,10 +18,15 @@ public:
 map<int, Tarefas> mapa_op;
 
 void funcao(int stat);
+
 bool valid();
+
 void ciclo(int no, bool pintado);
-vector <int> ordenar();
+
+vector<int> ordenar();
+
 int minimo();
+
 void congestionamento();
 
 int main() {
@@ -38,12 +44,12 @@ int main() {
             line.push_back(dep);
         }
         t.dep = line;
-        mapa_op.insert(make_pair(i+1,t));
+        mapa_op.insert(make_pair(i + 1, t));
         line.clear();
     }
     cin >> stat;
 
-    if(!mapa_op.empty()) {
+    if (!mapa_op.empty()) {
         funcao(stat);
     }
 }
@@ -88,7 +94,7 @@ bool valid() {
     bool no_dep = false;
     vector<int> not_terminal(mapa_op.size());
 
-    for (int i = 1; i < (int)mapa_op.size(); i++) {
+    for (int i = 1; i < (int) mapa_op.size(); i++) {
         if (mapa_op[i].n_dep == 0) { // nao tem dependencias
             if (!no_dep) {
                 no_dep = true;
@@ -97,26 +103,32 @@ bool valid() {
             }
         }
 
-
-        int no = i + 1;
-        for (int j = 0; j < (int)mapa_op.size(); j++) {
-            for (int k = 0; k < (int)mapa_op[j].dep.size(); k++) {
+        int no = i;
+        for (int j = 1; j < (int) mapa_op.size(); j++) {
+            for (int k = 0; k < mapa_op[j].n_dep; k++) {
                 // verifica se no nao e terminal
-                if (no == mapa_op[j].dep[k] and not_terminal.at(i) != no) {
-                    not_terminal.insert(not_terminal.begin() + i,no);
+                if (no == mapa_op[j].dep[k] and not_terminal.at((i-1)) != no) {
+                    not_terminal[i-1] = no;
                 }
             }
+
         }
     }
+    
     // verifica se nao ha ciclos
     //ciclo(no, pintado);
 
 
+    // contar os nos n terminais
+    int count = 0;
+    for (int i: not_terminal) {
+        if (i != 0) {
+            count ++;
+        }
+    }
 
-    // compara retira os nos que nao sao terminais
     // descubrindo o nº de nos terminais
-    if ((int)mapa_op.size() - (int)not_terminal.size() > 1) {
-        //cout << "nos terminais: " << operacoes.size() - not_terminal.size() << "\n";
+    if ((int) mapa_op.size() - count > 1) {
         return false;
     }
 
