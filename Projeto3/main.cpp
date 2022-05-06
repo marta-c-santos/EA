@@ -18,22 +18,18 @@ public:
 map<int, Tarefas> mapa_op;
 
 void funcao(int stat);
-
 bool valid();
-
 bool ciclo(int no);
-
 vector<int> ordenar();
-
 int minimo();
-
 void congestionamento();
+
 
 int main() {
     int n_op, time, n_dep, dep, stat;
     vector<int> line;
 
-    cin >> n_op;
+    cin >> n_op; // numero de tarefas
     Tarefas t;
     for (int i = 0; i < n_op; i++) {
         cin >> time >> n_dep;
@@ -62,20 +58,16 @@ void funcao(int stat) {
             cout << "VALID";
         } /*else if (stat == 1) {
             int tempo_total = 0;
-
             // imprimir o tempo total
             for (int i = 0; i < int(mapa_op.size()); ++i) {
                 tempo_total += mapa_op[i].time;
             }
             cout << tempo_total << "\n";
-
             // printar ordem da qual vai correr
             vector<int> ordenado = ordenar();
             for (int i: ordenado) {
                 cout << i << "\n";
             }
-
-
         } else if (stat == 2) {
             // imprimir o tempo minimo possivel
             int tempo = minimo();
@@ -83,13 +75,18 @@ void funcao(int stat) {
         } else if (stat == 3) {
             congestionamento();
         } else { // tem de dar erro
-
         }*/
     } else {
         cout << "INVALID";
     }
 }
 
+/*
+ * Verificacao se o conjunto de tarefas e valido
+ *
+ * return true - valido
+ * return false - invalido
+ */
 bool valid() {
     bool no_dep = false;
     vector<int> not_terminal(mapa_op.size());
@@ -118,7 +115,9 @@ bool valid() {
 
     // verifica se nao ha ciclos
     for (int i = 1; i < (int)mapa_op.size(); ++i) {
-        if (!mapa_op.at(i).pintado && ciclo(i)) {
+        cout << "entra\nmapa----- " << mapa_op.at(i).pintado << "\n";
+        // o no nao esta pintado e existe um ciclo
+        if (!mapa_op.at(i).pintado and ciclo(i)) {
             cout << "ciclo11: " << ciclo(i) << "\n";
             return true;
         }
@@ -143,13 +142,18 @@ bool valid() {
     return true;
 }
 
-
+/*
+ *
+ *
+ * return true - existe ciclo
+ * return false - nao existe ciclo
+ */
 bool ciclo(int no) {
     int count;
-    vector<int> null(mapa_op.size(), false);
-    vector<bool> rec(mapa_op.size(), false);
+    vector<int> null(mapa_op.size(), false); // ?
+    vector<bool> rec(mapa_op.size(), false); // ?
 
-    if (!mapa_op[no].pintado) {
+    if (!mapa_op[no].pintado) { //o no nao esta pintado
         /*if (null.at(no).empty()) {
             mapa_op[no].pintado = true;
             count++;
@@ -159,9 +163,10 @@ bool ciclo(int no) {
         rec[no] = true;
 
         for (int dep: mapa_op.at(no).dep) {
+            // se o no ja estiver pintado ou existir um ciclo -> ciclo
             if (!mapa_op.at(dep).pintado and ciclo(dep)) {
                 return true;
-            } else if ( rec.at(dep)) {
+            } else if ( rec.at(dep)) { // ?
                 return true;
             }
         }
@@ -169,6 +174,7 @@ bool ciclo(int no) {
         rec[no] = false;
         return false;
     }
+    return true;
 }
 
 /*
@@ -177,7 +183,6 @@ vector<int> ordenar() {
     vector<int> ordenado;
     int no, no2;
     int total = 0; // soma do tempo total
-
     for (int i = 0; i < (int)operacoes.size(); i++) {
         no = i + 1;
         if (ordenado.empty()) {
@@ -187,15 +192,7 @@ vector<int> ordenar() {
             }
         } else {
             // verificar se existem dependencias do no atual
-
-
-
-
-
         }
-
-
-
         for (int j = 0; j < (int)operacoes.size(); j++) {
             for (int k = 2; k < (int)operacoes[j].dep.size(); k++) {
                 no2 = j + 1;
@@ -207,18 +204,14 @@ vector<int> ordenar() {
                 }
             }
         }
-
     }
-
     return ordenado;
 }
-
 // stat == 2
 int minimo() {
     int tempo = 0;
     pair<int,int> aux;
     vector<int> somados;
-
     for (int i = 0; i < (int)operacoes.size(); i++) {
         aux = make_pair(0,0);
         if ((int)operacoes[i].size() > 2) { //tem dependencia
@@ -228,7 +221,6 @@ int minimo() {
                     aux.first = operacoes[i][j];
                 }
             }
-
             //cout << "\naux: " << aux.second << "\n";
             auto r = std::find(somados.begin(), somados.end(), aux.first);
             if (r == somados.end()) {
@@ -236,24 +228,18 @@ int minimo() {
                 somados.push_back(aux.first);
             }
         }
-
         //cout << "tempo: " << tempo << "\n";
-
     }
     tempo += operacoes.back()[0];
-
     return tempo;
 }
-
 // stat == 3
 void congestionamento() {
     vector<int> total;
     vector<int> not_terminal;
-
     for (int i = 0; i < (int)operacoes.size(); ++i) {
         not_terminal.push_back(i+1);
     }
-
     for (int i = 0; i < (int)operacoes.size(); ++i) {
         if ((int)operacoes[i].size() == 2) {
             total.push_back(i+1);
@@ -261,7 +247,6 @@ void congestionamento() {
         else if ((int)operacoes[i].size() > 3) {
             total.push_back(i+1);
         }
-
         int no = i + 1;
         for (int j = 0; j < (int)operacoes.size(); j++) {
             for (int k = 0; k < (int)operacoes[j].dep.size(); k++) {
@@ -273,14 +258,107 @@ void congestionamento() {
             }
         }
     }
-
     total.push_back(not_terminal[0]);
-
     for (int id: total) {
         cout << id << "\n";
     }
 }*/
 
+/*
+ Exemplo 1 - ha 1 no desconectado
+4
+3 0
+2 1 1
+4 1 2
+3 0
+0
 
+>> INVALID
 
+ Exemplo 2 - 2 nos iniciais
+5
+3 0
+2 1 1
+2 0
+5 2 2 3
+1 1 4
+1
+
+>> INVALID
+
+ Exemplo 3 - 2 nos terminais
+6
+3 0
+2 1 1
+2 1 1
+5 2 2 3
+1 1 4
+2 1 4
+2
+
+>> INVALID
+
+ Exemplo 4 - ciclos
+5
+3 0
+2 2 1 4
+2 2 1 2
+5 1 3
+1 1 4
+3
+
+>> INVALID
+
+ Exemplo 5
+5
+3 0
+2 1 1
+2 1 1
+5 2 2 3
+1 1 4
+0
+
+>> VALID
+
+ Exemplo 6
+5
+3 0
+2 1 1
+2 1 1
+5 2 2 3
+1 1 4
+1
+
+>> 13
+    1
+    2
+    3
+    4
+    5
+
+ Exemplo 7
+5
+3 0
+2 1 1
+2 1 1
+5 2 2 3
+1 1 4
+2
+
+>> 11
+
+ Exemplo 8
+5
+2 1 2
+3 0
+2 1 2
+1 1 5
+5 2 1 3
+3
+
+>> 2
+   5
+   4
+
+ */
 
