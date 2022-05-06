@@ -12,7 +12,7 @@ public:
     vector<int> dep;            // dependencias
     bool terminal;
     vector<int> dep_filhos;     // nos q sao dependentes do no atual
-    bool pintado;
+    bool pintado = false;
 };
 
 map<int, Tarefas> mapa_op;
@@ -21,7 +21,7 @@ void funcao(int stat);
 
 bool valid();
 
-void ciclo(int no, bool pintado);
+bool ciclo(int no);
 
 vector<int> ordenar();
 
@@ -100,6 +100,7 @@ bool valid() {
                 no_dep = true;
             } else {
                 return false;
+                cout << "passei as dep!\n";
             }
         }
 
@@ -107,50 +108,70 @@ bool valid() {
         for (int j = 1; j < (int) mapa_op.size(); j++) {
             for (int k = 0; k < mapa_op[j].n_dep; k++) {
                 // verifica se no nao e terminal
-                if (no == mapa_op[j].dep[k] and not_terminal.at((i-1)) != no) {
-                    not_terminal[i-1] = no;
+                if (no == mapa_op[j].dep[k] and not_terminal.at((i - 1)) != no) {
+                    not_terminal[i - 1] = no;
                 }
             }
 
         }
     }
-    
+
     // verifica se nao ha ciclos
-    //ciclo(no, pintado);
+    for (int i = 1; i < (int)mapa_op.size(); ++i) {
+        if (!mapa_op.at(i).pintado && ciclo(i)) {
+            cout << "ciclo11: " << ciclo(i) << "\n";
+            return true;
+        }
+    }
+    return false;
 
 
     // contar os nos n terminais
     int count = 0;
     for (int i: not_terminal) {
         if (i != 0) {
-            count ++;
+            count++;
         }
     }
 
     // descubrindo o nº de nos terminais
     if ((int) mapa_op.size() - count > 1) {
+        cout << "demasiados termianis!\n";
         return false;
     }
 
     return true;
 }
 
-/*
-void ciclo(int no, bool pintado) {
 
-    if(!operacoes[no].pintado) {
-        operacoes[no].pintado = true;
+bool ciclo(int no) {
+    int count;
+    vector<int> null(mapa_op.size(), false);
+    vector<bool> rec(mapa_op.size(), false);
 
-        for (int i = 0; i < (int)operacoes[no].dep.size(); i++) {
-            int no = operacoes[no].dep[i];
-            mapa.at(no);
+    if (!mapa_op[no].pintado) {
+        /*if (null.at(no).empty()) {
+            mapa_op[no].pintado = true;
+            count++;
+        }*/
 
-            if(operacoes[no].dep[i])
+        mapa_op[no].pintado = true;
+        rec[no] = true;
+
+        for (int dep: mapa_op.at(no).dep) {
+            if (!mapa_op.at(dep).pintado and ciclo(dep)) {
+                return true;
+            } else if ( rec.at(dep)) {
+                return true;
+            }
         }
+
+        rec[no] = false;
+        return false;
     }
 }
 
-
+/*
 // stat == 1
 vector<int> ordenar() {
     vector<int> ordenado;
