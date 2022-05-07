@@ -53,13 +53,14 @@ int main() {
 
 void funcao(int stat) {
     // verificacao das estatisticas
-    if (valid()) {
+    if (!valid()) {
         if (stat == 0) {
             cout << "VALID";
-        } /*else if (stat == 1) {
+
+        } else if (stat == 1) {
             int tempo_total = 0;
             // imprimir o tempo total
-            for (int i = 0; i < int(mapa_op.size()); ++i) {
+            for (int i = 0; i < int(mapa_op.size()); i++) {
                 tempo_total += mapa_op[i].time;
             }
             cout << tempo_total << "\n";
@@ -68,7 +69,7 @@ void funcao(int stat) {
             for (int i: ordenado) {
                 cout << i << "\n";
             }
-        } else if (stat == 2) {
+        } /*else if (stat == 2) {
             // imprimir o tempo minimo possivel
             int tempo = minimo();
             cout << tempo << "\n";
@@ -114,15 +115,14 @@ bool valid() {
     }
 
     // verifica se nao ha ciclos
-    for (int i = 1; i < (int)mapa_op.size(); ++i) {
-        cout << "entra\nmapa----- " << mapa_op.at(i).pintado << "\n";
+    for (int i = 1; i < (int)mapa_op.size(); i++) {
+        //cout << "entra\nmapa----- " << mapa_op.at(i).pintado << "\n";
         // o no nao esta pintado e existe um ciclo
         if (!mapa_op.at(i).pintado and ciclo(i)) {
-            cout << "ciclo11: " << ciclo(i) << "\n";
+            //cout << "ciclo11: " << ciclo(i) << "\n";
             return true;
         }
     }
-    return false;
 
 
     // contar os nos n terminais
@@ -131,8 +131,9 @@ bool valid() {
         if (i != 0) {
             count++;
         }
+        //cout << "no_terminal: " << i << "\n ";
     }
-
+    return false;
     // descubrindo o nº de nos terminais
     if ((int) mapa_op.size() - count > 1) {
         cout << "demasiados termianis!\n";
@@ -177,36 +178,49 @@ bool ciclo(int no) {
     return true;
 }
 
-/*
+
 // stat == 1
 vector<int> ordenar() {
     vector<int> ordenado;
     int no, no2;
     int total = 0; // soma do tempo total
-    for (int i = 0; i < (int)operacoes.size(); i++) {
+    int tamanho_mapa = (int)mapa_op.size();
+
+    for (int i = 0; i < tamanho_mapa; i++) {
         no = i + 1;
+        // adicionar todos os nos por ordem -> ordenado
         if (ordenado.empty()) {
-            if ((int)operacoes[i].n_dep == 0) { // nao existem dependencias
+            if ((int)mapa_op[no].n_dep == 0) { // nao existem dependencias
                 ordenado.push_back(no);
-                total += (int)operacoes[i].time;
+                total += (int)mapa_op[no].time;
             }
         } else {
+
             // verificar se existem dependencias do no atual
+            if ((int)mapa_op[no].n_dep != 0) { // tem pelo menos 1 dependencia
+                ordenado.push_back(no);
+                total += (int)mapa_op[no].time;
+            }
         }
-        for (int j = 0; j < (int)operacoes.size(); j++) {
-            for (int k = 2; k < (int)operacoes[j].dep.size(); k++) {
+
+        /*
+        for (int j = 0; j < (int)mapa_op.size(); j++) {
+            for (int k = 2; k < (int)mapa_op[j].dep.size(); k++) {
                 no2 = j + 1;
                 //cout << "\t comparando com: " << operacoes[j][k] << "\n";
                 auto r = std::find(ordenado.begin(), ordenado.end(), no2);
-                if (no == operacoes[j].dep[k] and r == ordenado.end()) {
+                if (no == mapa_op[j].dep[k] and r == ordenado.end()) {
                     //cout << "\t\t\tmeti dentro: " << no << "\n";
                     ordenado.push_back(no2);
                 }
             }
-        }
+        }*/
+
     }
+
     return ordenado;
 }
+/*
 // stat == 2
 int minimo() {
     int tempo = 0;
