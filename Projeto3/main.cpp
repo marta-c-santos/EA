@@ -16,6 +16,7 @@ public:
 };
 
 map<int, Tarefas> mapa_op;
+int tamanho_mapa = 0;
 
 void funcao(int stat);
 bool valid();
@@ -46,6 +47,7 @@ int main() {
     cin >> stat;
 
     if (!mapa_op.empty()) {
+        tamanho_mapa = (int)mapa_op.size();
         funcao(stat);
     }
 }
@@ -53,14 +55,14 @@ int main() {
 
 void funcao(int stat) {
     // verificacao das estatisticas
-    if (!valid()) {
+    if (valid()) {
         if (stat == 0) {
             cout << "VALID";
 
         } else if (stat == 1) {
             int tempo_total = 0;
             // imprimir o tempo total
-            for (int i = 0; i < int(mapa_op.size()); i++) {
+            for (int i = 0; i < tamanho_mapa; i++) {
                 tempo_total += mapa_op[i].time;
             }
             cout << tempo_total << "\n";
@@ -90,7 +92,7 @@ void funcao(int stat) {
  */
 bool valid() {
     bool no_dep = false;
-    vector<int> not_terminal(mapa_op.size());
+    vector<int> not_terminal(tamanho_mapa);
 
     for (int i = 1; i < (int) mapa_op.size(); i++) {
         if (mapa_op[i].n_dep == 0) { // nao tem dependencias
@@ -114,13 +116,18 @@ bool valid() {
         }
     }
 
+
     // verifica se nao ha ciclos
-    for (int i = 1; i < (int)mapa_op.size(); i++) {
+    cout << "\t\t\t\t\tmapa size: " << mapa_op.size() << "\n";
+    cout << "\t\t\t\t\t\t\t tamanho_mapa: " << tamanho_mapa << "\n";
+    for (int i = 0; i < tamanho_mapa; i++) {
         //cout << "entra\nmapa----- " << mapa_op.at(i).pintado << "\n";
         // o no nao esta pintado e existe um ciclo
-        if (!mapa_op.at(i).pintado and ciclo(i)) {
-            //cout << "ciclo11: " << ciclo(i) << "\n";
-            return true;
+        if (!mapa_op.at(i+1).pintado){
+            if(ciclo(i+1)) {
+                //cout << "ciclo11: " << ciclo(i) << "\n";
+                return false;
+            }
         }
     }
 
@@ -133,9 +140,9 @@ bool valid() {
         }
         //cout << "no_terminal: " << i << "\n ";
     }
-    return false;
+    return true;
     // descubrindo o nº de nos terminais
-    if ((int) mapa_op.size() - count > 1) {
+    if (tamanho_mapa - count > 1) {
         cout << "demasiados termianis!\n";
         return false;
     }
@@ -151,8 +158,8 @@ bool valid() {
  */
 bool ciclo(int no) {
     int count;
-    vector<int> null(mapa_op.size(), false); // ?
-    vector<bool> rec(mapa_op.size(), false); // ?
+    vector<int> null(tamanho_mapa, false); // ?
+    vector<bool> rec(tamanho_mapa, false); // ?
 
     if (!mapa_op[no].pintado) { //o no nao esta pintado
         /*if (null.at(no).empty()) {
@@ -161,30 +168,30 @@ bool ciclo(int no) {
         }*/
 
         mapa_op[no].pintado = true;
-        rec[no] = true;
+        rec[no-1] = true;
 
         for (int dep: mapa_op.at(no).dep) {
             // se o no ja estiver pintado ou existir um ciclo -> ciclo
+            cout << "pintado: " << mapa_op.at(dep).pintado << "\n";
             if (!mapa_op.at(dep).pintado and ciclo(dep)) {
                 return true;
-            } else if ( rec.at(dep)) { // ?
+            } else if ( rec.at(dep-1)) { // recursao em curso
                 return true;
             }
         }
 
-        rec[no] = false;
+        rec[no-1] = false;
         return false;
     }
     return true;
 }
 
 
-// stat == 1
+// stat == 1            concluida
 vector<int> ordenar() {
     vector<int> ordenado;
-    int no, no2;
+    int no;
     int total = 0; // soma do tempo total
-    int tamanho_mapa = (int)mapa_op.size();
 
     for (int i = 0; i < tamanho_mapa; i++) {
         no = i + 1;
@@ -195,29 +202,13 @@ vector<int> ordenar() {
                 total += (int)mapa_op[no].time;
             }
         } else {
-
             // verificar se existem dependencias do no atual
             if ((int)mapa_op[no].n_dep != 0) { // tem pelo menos 1 dependencia
                 ordenado.push_back(no);
                 total += (int)mapa_op[no].time;
             }
         }
-
-        /*
-        for (int j = 0; j < (int)mapa_op.size(); j++) {
-            for (int k = 2; k < (int)mapa_op[j].dep.size(); k++) {
-                no2 = j + 1;
-                //cout << "\t comparando com: " << operacoes[j][k] << "\n";
-                auto r = std::find(ordenado.begin(), ordenado.end(), no2);
-                if (no == mapa_op[j].dep[k] and r == ordenado.end()) {
-                    //cout << "\t\t\tmeti dentro: " << no << "\n";
-                    ordenado.push_back(no2);
-                }
-            }
-        }*/
-
     }
-
     return ordenado;
 }
 /*
@@ -226,7 +217,7 @@ int minimo() {
     int tempo = 0;
     pair<int,int> aux;
     vector<int> somados;
-    for (int i = 0; i < (int)operacoes.size(); i++) {
+    for (int i = 0; i < tamanho_mapa; i++) {
         aux = make_pair(0,0);
         if ((int)operacoes[i].size() > 2) { //tem dependencia
             for (int j = 2; j < (int)operacoes[i].size(); j++) {
@@ -247,6 +238,7 @@ int minimo() {
     tempo += operacoes.back()[0];
     return tempo;
 }
+
 // stat == 3
 void congestionamento() {
     vector<int> total;
