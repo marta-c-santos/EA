@@ -13,10 +13,13 @@ public:
     bool terminal;
     vector<int> dep_filhos;     // nos q sao dependentes do no atual
     bool pintado = false;
+    bool rec = false;           // recursao ativa para os ciclos
 };
 
 map<int, Tarefas> mapa_op;
 int tamanho_mapa = 0;
+
+//vector<bool> rec(tamanho_mapa, false); // recursao ativa para os ciclos
 
 void funcao(int stat);
 bool valid();
@@ -32,7 +35,8 @@ int main() {
 
     cin >> n_op; // numero de tarefas
     Tarefas t;
-    for (int i = 0; i < n_op; i++) {
+    mapa_op.insert(make_pair(0,t));
+    for (int i = 1; i < n_op + 1; i++) {
         cin >> time >> n_dep;
         t.time = time;
         t.n_dep = n_dep;
@@ -41,7 +45,7 @@ int main() {
             line.push_back(dep);
         }
         t.dep = line;
-        mapa_op.insert(make_pair(i + 1, t));
+        mapa_op.insert(make_pair(i, t));
         line.clear();
     }
     cin >> stat;
@@ -91,44 +95,53 @@ void funcao(int stat) {
  * return false - invalido
  */
 bool valid() {
-    bool no_dep = false;
-    vector<int> not_terminal(tamanho_mapa);
+    bool no_inicial = false;
+    int id_inicial = 0;
+    vector<int> not_terminal(tamanho_mapa, 0);
 
-    for (int i = 1; i < (int) mapa_op.size(); i++) {
+    // verificacao de apenas um NO id_inicial
+    for (int i = 1; i < tamanho_mapa; i++) {
         if (mapa_op[i].n_dep == 0) { // nao tem dependencias
-            if (!no_dep) {
-                no_dep = true;
+            id_inicial = i;
+            if (!no_inicial) { // verificar se ja existe NO id_inicial
+                no_inicial = true;
             } else {
+                //cout << "aqui\n";
                 return false;
-                cout << "passei as dep!\n";
             }
         }
 
         int no = i;
-        for (int j = 1; j < (int) mapa_op.size(); j++) {
+        for (int j = 1; j < tamanho_mapa; j++) {
             for (int k = 0; k < mapa_op[j].n_dep; k++) {
                 // verifica se no nao e terminal
-                if (no == mapa_op[j].dep[k] and not_terminal.at((i - 1)) != no) {
-                    not_terminal[i - 1] = no;
+                if (no == mapa_op[j].dep[k]) { //and not_terminal.at((i)) != no) {
+                    not_terminal[i] = no;
+                    mapa_op[i].dep_filhos.push_back(j); //adicionar os dependentes deste
                 }
             }
 
         }
     }
 
+    /*
+    //imprimir filhos
+    for (int i = 1; i < tamanho_mapa; ++i) {
+        cout << "\n-----------NO " << i << ": ";
+        for (int j = 0; j < (int)mapa_op[i].dep_filhos.size(); ++j) {
+            cout << mapa_op[i].dep_filhos[j] << " ";
+        }
+        cout << "\n";
+    }*/
+
+
 
     // verifica se nao ha ciclos
-    cout << "\t\t\t\t\tmapa size: " << mapa_op.size() << "\n";
-    cout << "\t\t\t\t\t\t\t tamanho_mapa: " << tamanho_mapa << "\n";
-    for (int i = 0; i < tamanho_mapa; i++) {
-        //cout << "entra\nmapa----- " << mapa_op.at(i).pintado << "\n";
-        // o no nao esta pintado e existe um ciclo
-        if (!mapa_op.at(i+1).pintado){
-            if(ciclo(i+1)) {
-                //cout << "ciclo11: " << ciclo(i) << "\n";
-                return false;
-            }
-        }
+    cout << "init: " << id_inicial << "\n";
+    bool a = ciclo(id_inicial);
+    cout << "ciclo: " << a << "\n";
+    if(a){
+        return false;
     }
 
 
@@ -138,12 +151,12 @@ bool valid() {
         if (i != 0) {
             count++;
         }
-        //cout << "no_terminal: " << i << "\n ";
+        cout << "not_terminal: " << i << "\n ";
     }
-    return true;
+
     // descubrindo o nº de nos terminais
-    if (tamanho_mapa - count > 1) {
-        cout << "demasiados termianis!\n";
+    if ((tamanho_mapa - 1) - count > 1) {
+        cout << "demasiados terminais!\n";
         return false;
     }
 
@@ -157,30 +170,27 @@ bool valid() {
  * return false - nao existe ciclo
  */
 bool ciclo(int no) {
-    int count;
-    vector<int> null(tamanho_mapa, false); // ?
-    vector<bool> rec(tamanho_mapa, false); // ?
+    cout << "NO ciclo: " << no << "\n";
+
 
     if (!mapa_op[no].pintado) { //o no nao esta pintado
-        /*if (null.at(no).empty()) {
-            mapa_op[no].pintado = true;
-            count++;
-        }*/
-
         mapa_op[no].pintado = true;
-        rec[no-1] = true;
+        mapa_op[no].rec = true;
 
-        for (int dep: mapa_op.at(no).dep) {
-            // se o no ja estiver pintado ou existir um ciclo -> ciclo
-            cout << "pintado: " << mapa_op.at(dep).pintado << "\n";
-            if (!mapa_op.at(dep).pintado and ciclo(dep)) {
-                return true;
-            } else if ( rec.at(dep-1)) { // recursao em curso
-                return true;
+        cout << "n_filhos: " << mapa_op[no].dep_filhos.size() << "\n";
+        if( (int)mapa_op[no].dep_filhos.size() != 0) {
+            for (int dep: mapa_op[no].dep_filhos) {
+                // se o no nao estiver pintado ou existir um ciclo -> ciclo
+                cout << "estamos no No " << no << " pintado " << dep << ": " << mapa_op.at(dep).pintado << "\n";
+                if (!mapa_op.at(dep).pintado && ciclo(dep)) {
+                    return true;
+                } else if (mapa_op.at(dep).rec) { // recursao em curso
+                    return true;
+                }
             }
         }
 
-        rec[no-1] = false;
+        mapa_op[no].rec = false;
         return false;
     }
     return true;
