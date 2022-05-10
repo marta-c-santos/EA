@@ -7,10 +7,10 @@ using namespace std;
 
 class Tarefas {
 public:
-    int time;                   // tempo para processar
-    int n_dep;                  // numero de dependencias
+    int time = 0;                   // tempo para processar
+    int n_dep = 0;                  // numero de dependencias
     vector<int> dep;            // dependencias
-    //bool terminal;
+    //bool terminal = false;
     vector<int> dep_filhos;     // nos q sao dependentes do no atual
     bool pintado = false;
     bool rec = false;           // recursao ativa para os ciclos
@@ -18,13 +18,14 @@ public:
 
 
 int tamanho_mapa = 0;
+int id_inicial = 0;
 map<int, Tarefas> mapa_op;
 
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
 vector<int> ordenar();
-//int minimo();
+int minimo(int no);
 //void congestionamento();
 
 
@@ -41,15 +42,15 @@ int main() {
 
     for (int i = 1; i < n_op + 1; i++) {
         cin >> time >> n_dep;
-        t.time = time;
-        t.n_dep = n_dep;
+        mapa_op[i].time = time;
+        mapa_op[i].n_dep = n_dep;
         for (int j = 0; j < n_dep; j++) {
             cin >> dep;
             mapa_op.at(dep).dep_filhos.push_back(i);    //adicionar os dependentes deste
             line.push_back(dep);
         }
-        t.dep = line;
-        mapa_op.insert(make_pair(i, t));
+        mapa_op[i].dep = line;
+        //mapa_op.insert(make_pair(i, t));
         line.clear();
     }
     cin >> stat;
@@ -79,11 +80,11 @@ void funcao(int stat) {
             for (int i: ordenado) {
                 cout << i << "\n";
             }
-        } /*else if (stat == 2) {
+        } else if (stat == 2) {
             // imprimir o tempo minimo possivel
-            int tempo = minimo();
+            int tempo = minimo(id_inicial);
             cout << tempo << "\n";
-        } else if (stat == 3) {
+        } /*else if (stat == 3) {
             congestionamento();
         } else { // tem de dar erro
         }*/
@@ -101,7 +102,6 @@ void funcao(int stat) {
 bool valid() {
     bool no_inicial = false;
     bool no_final = false;
-    int id_inicial = 0;
     vector<int> not_terminal(tamanho_mapa, 0);
 
     // verificacao de apenas um NO id_inicial
@@ -111,14 +111,16 @@ bool valid() {
             if (!no_inicial) { // verificar se ja existe NO id_inicial
                 no_inicial = true;
             } else {
+                cout << "ja existe no inicial\n";
                 return false;
             }
         }
 
-        if ( (int)mapa_op[i].dep_filhos.size() == 0 ) {
+        if (mapa_op[i].dep_filhos.empty()) {
             if(!no_final) {
                 no_final = true;
             } else {
+                cout << "ja existe no final\n";
                 return false;
             }
         }
@@ -138,6 +140,7 @@ bool valid() {
 
     // verifica se nao ha ciclos
     if(ciclo(id_inicial)){
+        cout << "existe um ciclo\n";
         return false;
     }
 
@@ -200,34 +203,30 @@ vector<int> ordenar() {
     }
     return ordenado;
 }
-/*
+
 // stat == 2
-int minimo() {
-    int tempo = 0;
-    pair<int,int> aux;
-    vector<int> somados;
-    for (int i = 0; i < tamanho_mapa; i++) {
-        aux = make_pair(0,0);
-        if ((int)operacoes[i].size() > 2) { //tem dependencia
-            for (int j = 2; j < (int)operacoes[i].size(); j++) {
-                if (aux.second < operacoes.at(operacoes[i][j]-1)[0]) {
-                    aux.second = operacoes.at(operacoes[i][j]-1)[0];
-                    aux.first = operacoes[i][j];
-                }
-            }
-            //cout << "\naux: " << aux.second << "\n";
-            auto r = std::find(somados.begin(), somados.end(), aux.first);
-            if (r == somados.end()) {
-                tempo += aux.second;
-                somados.push_back(aux.first);
+int minimo(int no) {
+    int tempo = 0, aux = 0;
+    Tarefas n = mapa_op.at(no);
+    int filhos = (int)n.dep_filhos.size();
+
+    //verificar se tem filhos
+    if(filhos > 0) {
+        for (int i = 0; i < filhos; ++i) {
+            int min_filhos = minimo(n.dep_filhos[i]); //verifcar o custo temporal atraves deste filho
+            if( aux > min_filhos){
+                aux = min_filhos; //se o custo for menor atualiza o aux e escolhendo esse caminho
             }
         }
-        //cout << "tempo: " << tempo << "\n";
+        tempo += aux;
+    } else {
+        tempo += n.time; //adicionar no final
     }
-    tempo += operacoes.back()[0];
+
     return tempo;
 }
 
+/*
 // stat == 3
 void congestionamento() {
     vector<int> total;
