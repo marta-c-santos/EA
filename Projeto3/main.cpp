@@ -10,23 +10,22 @@ public:
     int time;                   // tempo para processar
     int n_dep;                  // numero de dependencias
     vector<int> dep;            // dependencias
-    bool terminal;
+    //bool terminal;
     vector<int> dep_filhos;     // nos q sao dependentes do no atual
     bool pintado = false;
     bool rec = false;           // recursao ativa para os ciclos
 };
 
-map<int, Tarefas> mapa_op;
-int tamanho_mapa = 0;
 
-//vector<bool> rec(tamanho_mapa, false); // recursao ativa para os ciclos
+int tamanho_mapa = 0;
+map<int, Tarefas> mapa_op;
 
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
 vector<int> ordenar();
-int minimo();
-void congestionamento();
+//int minimo();
+//void congestionamento();
 
 
 int main() {
@@ -35,13 +34,18 @@ int main() {
 
     cin >> n_op; // numero de tarefas
     Tarefas t;
-    mapa_op.insert(make_pair(0,t));
+
+    for (int a = 0; a < n_op + 1; a++) {
+        mapa_op.insert(make_pair(a,t));
+    }
+
     for (int i = 1; i < n_op + 1; i++) {
         cin >> time >> n_dep;
         t.time = time;
         t.n_dep = n_dep;
         for (int j = 0; j < n_dep; j++) {
             cin >> dep;
+            mapa_op.at(dep).dep_filhos.push_back(i);    //adicionar os dependentes deste
             line.push_back(dep);
         }
         t.dep = line;
@@ -96,6 +100,7 @@ void funcao(int stat) {
  */
 bool valid() {
     bool no_inicial = false;
+    bool no_final = false;
     int id_inicial = 0;
     vector<int> not_terminal(tamanho_mapa, 0);
 
@@ -106,22 +111,18 @@ bool valid() {
             if (!no_inicial) { // verificar se ja existe NO id_inicial
                 no_inicial = true;
             } else {
-                //cout << "aqui\n";
                 return false;
             }
         }
 
-        int no = i;
-        for (int j = 1; j < tamanho_mapa; j++) {
-            for (int k = 0; k < mapa_op[j].n_dep; k++) {
-                // verifica se no nao e terminal
-                if (no == mapa_op[j].dep[k]) { //and not_terminal.at((i)) != no) {
-                    not_terminal[i] = no;
-                    mapa_op[i].dep_filhos.push_back(j); //adicionar os dependentes deste
-                }
+        if ( (int)mapa_op[i].dep_filhos.size() == 0 ) {
+            if(!no_final) {
+                no_final = true;
+            } else {
+                return false;
             }
-
         }
+
     }
 
     /*
@@ -132,31 +133,11 @@ bool valid() {
             cout << mapa_op[i].dep_filhos[j] << " ";
         }
         cout << "\n";
-    }*/
-
-
+    }
+    */
 
     // verifica se nao ha ciclos
-    cout << "init: " << id_inicial << "\n";
-    bool a = ciclo(id_inicial);
-    cout << "ciclo: " << a << "\n";
-    if(a){
-        return false;
-    }
-
-
-    // contar os nos n terminais
-    int count = 0;
-    for (int i: not_terminal) {
-        if (i != 0) {
-            count++;
-        }
-        cout << "not_terminal: " << i << "\n ";
-    }
-
-    // descubrindo o nº de nos terminais
-    if ((tamanho_mapa - 1) - count > 1) {
-        cout << "demasiados terminais!\n";
+    if(ciclo(id_inicial)){
         return false;
     }
 
@@ -164,24 +145,24 @@ bool valid() {
 }
 
 /*
- *
+ * Funcao verifica se existem ciclos no grafo
  *
  * return true - existe ciclo
  * return false - nao existe ciclo
  */
 bool ciclo(int no) {
-    cout << "NO ciclo: " << no << "\n";
+    //cout << "NO ciclo: " << no << "\n";
 
 
     if (!mapa_op[no].pintado) { //o no nao esta pintado
         mapa_op[no].pintado = true;
         mapa_op[no].rec = true;
 
-        cout << "n_filhos: " << mapa_op[no].dep_filhos.size() << "\n";
+        //cout << "n_filhos: " << mapa_op[no].dep_filhos.size() << "\n";
         if( (int)mapa_op[no].dep_filhos.size() != 0) {
             for (int dep: mapa_op[no].dep_filhos) {
                 // se o no nao estiver pintado ou existir um ciclo -> ciclo
-                cout << "estamos no No " << no << " pintado " << dep << ": " << mapa_op.at(dep).pintado << "\n";
+                //cout << "estamos no No " << no << " pintado " << dep << ": " << mapa_op.at(dep).pintado << "\n";
                 if (!mapa_op.at(dep).pintado && ciclo(dep)) {
                     return true;
                 } else if (mapa_op.at(dep).rec) { // recursao em curso
@@ -200,11 +181,9 @@ bool ciclo(int no) {
 // stat == 1            concluida
 vector<int> ordenar() {
     vector<int> ordenado;
-    int no;
     int total = 0; // soma do tempo total
 
-    for (int i = 0; i < tamanho_mapa; i++) {
-        no = i + 1;
+    for (int no = 1; no < tamanho_mapa; no++) {
         // adicionar todos os nos por ordem -> ordenado
         if (ordenado.empty()) {
             if ((int)mapa_op[no].n_dep == 0) { // nao existem dependencias
