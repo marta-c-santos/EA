@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <queue>
 
 using namespace std;
 
@@ -37,7 +38,7 @@ int main() {
     Tarefas t;
 
     for (int a = 0; a < n_op + 1; a++) {
-        mapa_op.insert(make_pair(a,t));
+        mapa_op.insert(make_pair(a, t));
     }
 
     for (int i = 1; i < n_op + 1; i++) {
@@ -56,7 +57,7 @@ int main() {
     cin >> stat;
 
     if (!mapa_op.empty()) {
-        tamanho_mapa = (int)mapa_op.size();
+        tamanho_mapa = (int) mapa_op.size();
         funcao(stat);
     }
 }
@@ -111,20 +112,23 @@ bool valid() {
             if (!no_inicial) { // verificar se ja existe NO id_inicial
                 no_inicial = true;
             } else {
-                cout << "ja existe no inicial\n";
+                //cout << "ja existe no inicial\n";
                 return false;
             }
         }
 
         if (mapa_op[i].dep_filhos.empty()) {
-            if(!no_final) {
+            if (!no_final) {
                 no_final = true;
             } else {
-                cout << "ja existe no final\n";
+                //cout << "ja existe no final\n";
                 return false;
             }
         }
 
+        if (mapa_op[i].n_dep == 0 and mapa_op[i].dep_filhos.size() == 0) {
+            return false;
+        }
     }
 
     /*
@@ -139,10 +143,11 @@ bool valid() {
     */
 
     // verifica se nao ha ciclos
-    if(ciclo(id_inicial)){
-        cout << "existe um ciclo\n";
+    if (ciclo(id_inicial)) {
+        //cout << "existe um ciclo\n";
         return false;
     }
+
 
     return true;
 }
@@ -162,7 +167,7 @@ bool ciclo(int no) {
         mapa_op[no].rec = true;
 
         //cout << "n_filhos: " << mapa_op[no].dep_filhos.size() << "\n";
-        if( (int)mapa_op[no].dep_filhos.size() != 0) {
+        if ((int) mapa_op[no].dep_filhos.size() != 0) {
             for (int dep: mapa_op[no].dep_filhos) {
                 // se o no nao estiver pintado ou existir um ciclo -> ciclo
                 //cout << "estamos no No " << no << " pintado " << dep << ": " << mapa_op.at(dep).pintado << "\n";
@@ -189,15 +194,15 @@ vector<int> ordenar() {
     for (int no = 1; no < tamanho_mapa; no++) {
         // adicionar todos os nos por ordem -> ordenado
         if (ordenado.empty()) {
-            if ((int)mapa_op[no].n_dep == 0) { // nao existem dependencias
+            if ((int) mapa_op[no].n_dep == 0) { // nao existem dependencias
                 ordenado.push_back(no);
-                total += (int)mapa_op[no].time;
+                total += (int) mapa_op[no].time;
             }
         } else {
             // verificar se existem dependencias do no atual
-            if ((int)mapa_op[no].n_dep != 0) { // tem pelo menos 1 dependencia
+            if ((int) mapa_op[no].n_dep != 0) { // tem pelo menos 1 dependencia
                 ordenado.push_back(no);
-                total += (int)mapa_op[no].time;
+                total += (int) mapa_op[no].time;
             }
         }
     }
@@ -205,20 +210,29 @@ vector<int> ordenar() {
 }
 
 // stat == 2
+int min_filhos = 0;
+
 int minimo(int no) {
-    int tempo = 0, aux = 0;
+    int tempo = 0;
+
     Tarefas n = mapa_op.at(no);
-    int filhos = (int)n.dep_filhos.size();
+    int filhos = (int) n.dep_filhos.size();
 
     //verificar se tem filhos
-    if(filhos > 0) {
-        for (int i = 0; i < filhos; ++i) {
-            int min_filhos = minimo(n.dep_filhos[i]); //verifcar o custo temporal atraves deste filho
-            if( aux > min_filhos){
+    if (filhos > 0) {
+        for (int i = 0; i < filhos; i++) {
+            int aux = 10000;
+            int a = minimo(n.dep_filhos[i]);
+            //cout << "este e o minimo: " << a << "\n";
+            min_filhos += a; //verifcar o custo temporal atraves deste filho
+            //min_filhos += n.time; //adicionar valor do NO
+            //cout << "min_filhos: " << min_filhos << "\n";
+            if (a < aux) {
                 aux = min_filhos; //se o custo for menor atualiza o aux e escolhendo esse caminho
             }
         }
-        tempo += aux;
+        //tempo += aux;
+        tempo += n.time;
     } else {
         tempo += n.time; //adicionar no final
     }
