@@ -67,7 +67,7 @@ void funcao(int stat) {
     // verificacao das estatisticas
     if (valid()) {
         if (stat == 0) {
-            cout << "VALID";
+            cout << "VALID\n";
 
         } else if (stat == 1) {
             int tempo_total = 0;
@@ -90,7 +90,7 @@ void funcao(int stat) {
         } else { // tem de dar erro
         }*/
     } else {
-        cout << "INVALID";
+        cout << "INVALID\n";
     }
 }
 
@@ -209,11 +209,11 @@ vector<int> ordenar() {
     return ordenado;
 }
 
+
 // stat == 2
 int min_filhos = 0;
-
 int minimo(int no) {
-    int tempo = 0;
+    int tempo = 0, aux = 0, a;
 
     Tarefas n = mapa_op.at(no);
     int filhos = (int) n.dep_filhos.size();
@@ -221,22 +221,21 @@ int minimo(int no) {
     //verificar se tem filhos
     if (filhos > 0) {
         for (int i = 0; i < filhos; i++) {
-            int aux = 10000;
-            int a = minimo(n.dep_filhos[i]);
-            //cout << "este e o minimo: " << a << "\n";
-            min_filhos += a; //verifcar o custo temporal atraves deste filho
-            //min_filhos += n.time; //adicionar valor do NO
-            //cout << "min_filhos: " << min_filhos << "\n";
+            a = minimo(n.dep_filhos[i]);
+
             if (a < aux) {
                 aux = min_filhos; //se o custo for menor atualiza o aux e escolhendo esse caminho
             }
+            aux = a;
         }
         //tempo += aux;
-        tempo += n.time;
+        tempo += (n.time + aux);
     } else {
         tempo += n.time; //adicionar no final
     }
 
+
+    //cout << "tempo: " << tempo << "\n";
     return tempo;
 }
 
