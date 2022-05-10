@@ -8,8 +8,8 @@ using namespace std;
 
 class Tarefas {
 public:
-    int time = 0;                   // tempo para processar
-    int n_dep = 0;                  // numero de dependencias
+    int time = 0;               // tempo para processar
+    int n_dep = 0;              // numero de dependencias
     vector<int> dep;            // dependencias
     //bool terminal = false;
     vector<int> dep_filhos;     // nos q sao dependentes do no atual
@@ -20,6 +20,7 @@ public:
 
 int tamanho_mapa = 0;
 int id_inicial = 0;
+bool no_final = false;
 map<int, Tarefas> mapa_op;
 
 void funcao(int stat);
@@ -32,6 +33,7 @@ int minimo(int no);
 
 int main() {
     int n_op, time, n_dep, dep, stat;
+    bool no_inicial = false;
     vector<int> line;
 
     cin >> n_op; // numero de tarefas
@@ -51,7 +53,18 @@ int main() {
             line.push_back(dep);
         }
         mapa_op[i].dep = line;
-        //mapa_op.insert(make_pair(i, t));
+
+
+        if (mapa_op[i].n_dep == 0) { // nao tem dependencias
+            id_inicial = i;
+            if (!no_inicial) { // verificar se ja existe NO id_inicial
+                no_inicial = true;
+            } else {
+                cout << "INVALID\n";
+                return 0;
+            }
+        }
+
         line.clear();
     }
     cin >> stat;
@@ -101,54 +114,11 @@ void funcao(int stat) {
  * return false - invalido
  */
 bool valid() {
-    bool no_inicial = false;
-    bool no_final = false;
-    vector<int> not_terminal(tamanho_mapa, 0);
-
-    // verificacao de apenas um NO id_inicial
-    for (int i = 1; i < tamanho_mapa; i++) {
-        if (mapa_op[i].n_dep == 0) { // nao tem dependencias
-            id_inicial = i;
-            if (!no_inicial) { // verificar se ja existe NO id_inicial
-                no_inicial = true;
-            } else {
-                //cout << "ja existe no inicial\n";
-                return false;
-            }
-        }
-
-        if (mapa_op[i].dep_filhos.empty()) {
-            if (!no_final) {
-                no_final = true;
-            } else {
-                //cout << "ja existe no final\n";
-                return false;
-            }
-        }
-
-        if (mapa_op[i].n_dep == 0 and mapa_op[i].dep_filhos.size() == 0) {
-            return false;
-        }
-    }
-
-    /*
-    //imprimir filhos
-    for (int i = 1; i < tamanho_mapa; ++i) {
-        cout << "\n-----------NO " << i << ": ";
-        for (int j = 0; j < (int)mapa_op[i].dep_filhos.size(); ++j) {
-            cout << mapa_op[i].dep_filhos[j] << " ";
-        }
-        cout << "\n";
-    }
-    */
-
     // verifica se nao ha ciclos
     if (ciclo(id_inicial)) {
         //cout << "existe um ciclo\n";
         return false;
     }
-
-
     return true;
 }
 
@@ -158,10 +128,8 @@ bool valid() {
  * return true - existe ciclo
  * return false - nao existe ciclo
  */
+
 bool ciclo(int no) {
-    //cout << "NO ciclo: " << no << "\n";
-
-
     if (!mapa_op[no].pintado) { //o no nao esta pintado
         mapa_op[no].pintado = true;
         mapa_op[no].rec = true;
@@ -177,6 +145,18 @@ bool ciclo(int no) {
                     return true;
                 }
             }
+        }
+
+        if (mapa_op[no].dep_filhos.size() == 0) {
+            if (!no_final) {
+                no_final = true;
+            } else {
+                return false;
+            }
+        }
+
+        if (mapa_op[no].n_dep == 0 and mapa_op[no].dep_filhos.size() == 0) {
+            return false;
         }
 
         mapa_op[no].rec = false;
@@ -211,31 +191,18 @@ vector<int> ordenar() {
 
 
 // stat == 2
-int min_filhos = 0;
 int minimo(int no) {
-    int tempo = 0, aux = 0, a;
-
     Tarefas n = mapa_op.at(no);
-    int filhos = (int) n.dep_filhos.size();
+    int aux = 0, tempo = 0;
 
-    //verificar se tem filhos
-    if (filhos > 0) {
-        for (int i = 0; i < filhos; i++) {
-            a = minimo(n.dep_filhos[i]);
-
-            if (a < aux) {
-                aux = min_filhos; //se o custo for menor atualiza o aux e escolhendo esse caminho
-            }
-            aux = a;
+    for (int i: n.dep_filhos) {
+        int a = minimo(i);
+        if (a > aux) {
+            aux = a; //se o custo for menor atualiza o aux e escolhendo esse caminho
         }
-        //tempo += aux;
-        tempo += (n.time + aux);
-    } else {
-        tempo += n.time; //adicionar no final
     }
+    tempo += (n.time + aux);
 
-
-    //cout << "tempo: " << tempo << "\n";
     return tempo;
 }
 
