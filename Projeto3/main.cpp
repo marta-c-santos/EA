@@ -22,7 +22,7 @@ int tamanho_mapa = 0;
 int id_inicial = 0;
 bool no_final = false;
 map<int, Tarefas> mapa_op;
-
+vector<int> visitados(1000);
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
@@ -195,6 +195,10 @@ int minimo(int no) {
     Tarefas n = mapa_op.at(no);
     int aux = 0, tempo = 0;
 
+    if( visitados[no] != 0){ //verificar se o caminho ja foi percorrido
+        return visitados[no];
+    }
+
     for (int i: n.dep_filhos) {
         int a = minimo(i);
         if (a > aux) {
@@ -202,6 +206,7 @@ int minimo(int no) {
         }
     }
     tempo += (n.time + aux);
+    visitados[no] = tempo;
 
     return tempo;
 }
