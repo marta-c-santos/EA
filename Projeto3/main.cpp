@@ -20,13 +20,14 @@ public:
 
 int tamanho_mapa = 0;
 int id_inicial = 0;
+int id_final = 0;
 bool no_final = false;
 map<int, Tarefas> mapa_op;
 vector<int> visitados(1000);
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
-vector<int> ordenar();
+vector<int> ordenar(int no);
 int minimo(int no);
 //void congestionamento();
 
@@ -90,7 +91,7 @@ void funcao(int stat) {
             }
             cout << tempo_total << "\n";
             // printar ordem da qual vai correr
-            vector<int> ordenado = ordenar();
+            vector<int> ordenado = ordenar(id_inicial);
             for (int i: ordenado) {
                 cout << i << "\n";
             }
@@ -149,6 +150,7 @@ bool ciclo(int no) {
 
         if (mapa_op[no].dep_filhos.size() == 0) {
             if (!no_final) {
+                id_final = no;
                 no_final = true;
             } else {
                 return false;
@@ -167,26 +169,26 @@ bool ciclo(int no) {
 
 
 // stat == 1            concluida
-vector<int> ordenar() {
-    vector<int> ordenado;
-    int total = 0; // soma do tempo total
+vector<int> ordenar(int no) {
+    vector<bool> visitado(1000, false);
+    queue<int> q;
 
-    for (int no = 1; no < tamanho_mapa; no++) {
-        // adicionar todos os nos por ordem -> ordenado
-        if (ordenado.empty()) {
-            if ((int) mapa_op[no].n_dep == 0) { // nao existem dependencias
-                ordenado.push_back(no);
-                total += (int) mapa_op[no].time;
-            }
-        } else {
-            // verificar se existem dependencias do no atual
-            if ((int) mapa_op[no].n_dep != 0) { // tem pelo menos 1 dependencia
-                ordenado.push_back(no);
-                total += (int) mapa_op[no].time;
+    q.push(no);
+    visitado[no] = true;
+
+    while (!q.empty()) {
+        no = q.front();
+        cout << no << "\n";
+        q.pop();
+
+        for (int seg: mapa_op.at(no).dep_filhos) {
+            if (!visitado[seg]) {
+               visitado[seg] = true;
+               q.push(seg);
             }
         }
     }
-    return ordenado;
+
 }
 
 
