@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <list>
 
 using namespace std;
 
@@ -27,7 +28,7 @@ vector<int> visitados(1000);
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
-vector<int> ordenar(int no);
+void ordenar(int no);
 int minimo(int no);
 //void congestionamento();
 
@@ -91,10 +92,7 @@ void funcao(int stat) {
             }
             cout << tempo_total << "\n";
             // printar ordem da qual vai correr
-            vector<int> ordenado = ordenar(id_inicial);
-            for (int i: ordenado) {
-                cout << i << "\n";
-            }
+            ordenar(id_inicial);
         } else if (stat == 2) {
             // imprimir o tempo minimo possivel
             int tempo = minimo(id_inicial);
@@ -108,11 +106,12 @@ void funcao(int stat) {
     }
 }
 
-/*
+
+/**
  * Verificacao se o conjunto de tarefas e valido
  *
- * return true - valido
- * return false - invalido
+ * @return true - valido
+ * @return false - invalido
  */
 bool valid() {
     // verifica se nao ha ciclos
@@ -123,13 +122,14 @@ bool valid() {
     return true;
 }
 
-/*
- * Funcao verifica se existem ciclos no grafo
- *
- * return true - existe ciclo
- * return false - nao existe ciclo
- */
 
+/**
+ * Funcao verifica se existem ciclos, NO independe e NO final no grafo
+ *
+ * @param no
+ * @return true - existe ciclo, NO independente e 2 NOS finais
+ * @return false - nao existe ciclo
+ */
 bool ciclo(int no) {
     if (!mapa_op[no].pintado) { //o no nao esta pintado
         mapa_op[no].pintado = true;
@@ -168,23 +168,27 @@ bool ciclo(int no) {
 }
 
 
-// stat == 1            concluida
-vector<int> ordenar(int no) {
+/**
+ * Stat == 1 -> tempo minimo e a ordem do caminho
+ * @param no
+ */
+void ordenar(int no) {
     vector<bool> visitado(1000, false);
-    queue<int> q;
+    priority_queue<int, vector<int>, greater<int>> q;
 
     q.push(no);
     visitado[no] = true;
 
     while (!q.empty()) {
-        no = q.front();
+        no = q.top();
         cout << no << "\n";
         q.pop();
 
         for (int seg: mapa_op.at(no).dep_filhos) {
-            if (!visitado[seg]) {
-               visitado[seg] = true;
-               q.push(seg);
+            mapa_op.at(seg).n_dep--;
+            if (mapa_op.at(seg).n_dep <= 0) {
+                visitado[seg] = true;
+                q.push(seg);
             }
         }
     }
@@ -193,11 +197,17 @@ vector<int> ordenar(int no) {
 
 
 // stat == 2
+/**
+ * Encontra o caminho com um custo menor,
+ * partindo do primeiro NO percorrendo os NOS filhos seguintes
+ * @param no
+ * @return
+ */
 int minimo(int no) {
     Tarefas n = mapa_op.at(no);
     int aux = 0, tempo = 0;
 
-    if( visitados[no] != 0){ //verificar se o caminho ja foi percorrido
+    if (visitados[no] != 0) { //verificar se o caminho ja foi percorrido
         return visitados[no];
     }
 
@@ -208,7 +218,7 @@ int minimo(int no) {
         }
     }
     tempo += (n.time + aux);
-    visitados[no] = tempo;
+    visitados[no] = tempo;      // adiciona o valor do caminho seguinte
 
     return tempo;
 }
