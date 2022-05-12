@@ -134,6 +134,7 @@ bool valid() {
 
 /**
  * Funcao verifica se existem ciclos, NO independe e NO final no grafo
+ * DFS
  *
  * @param no
  * @return true - existe ciclo, NO independente e 2 NOS finais
@@ -179,6 +180,8 @@ bool ciclo(int no) {
 
 /**
  * Stat == 1 -> tempo minimo e a ordem do caminho
+ * BFS
+ *
  * @param no
  */
 void ordenar(int no) {
@@ -205,10 +208,11 @@ void ordenar(int no) {
 }
 
 
-// stat == 2
 /**
+ * Stat == 2
  * Encontra o caminho com um custo menor,
  * partindo do primeiro NO percorrendo os NOS filhos seguintes
+ *
  * @param no
  * @return
  */
@@ -233,9 +237,12 @@ int minimo(int no) {
 }
 
 
-// stat == 3
 /**
+ * Stat == 3
  *
+ * BFS
+ *
+ * @return
  */
 vector<int> congest() {
     vector<int> bottlenecks;
@@ -263,18 +270,28 @@ vector<int> congest() {
 
     return bottlenecks;
 }
+
 /**
  *
  * @param no
  */
 void congest_frente(int no) {
-    if (!pintado[no]) {
-        pintado[no] = true;
+    queue<int> q;
 
-        if(mapa_op.at(no).dep_filhos.size() > 0) {
-            congest_frente(mapa_op.at(no).dep_filhos[0]);
+    q.push(no);
+    pintado[no] = true;
+
+    while (!q.empty()) {
+        no = q.front();
+
+        q.pop()
+        for (int seg: mapa_op.at(no).dep_filhos) {
+
+            pintado[seg] = true;
+            q.push(seg);
         }
     }
+
 }
 
 /**
