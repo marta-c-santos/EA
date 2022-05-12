@@ -18,23 +18,21 @@ public:
     bool rec = false;           // recursao ativa para os ciclos
 };
 
-
+// Variaveis globais
 int tamanho_mapa = 0;
 int id_inicial = 0;
 int id_final = 0;
 bool no_final = false;
 map<int, Tarefas> mapa_op;
 vector<int> visitados(1000);
-vector<bool> pintado(1000);     //stat 3
 
+// Funcoes
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
 void ordenar(int no);
 int minimo(int no);
-vector<int> congest();
-void congest_frente(int no);
-void congest_tras(int no);
+vector<int> congest(int no);
 
 
 int main() {
@@ -102,9 +100,9 @@ void funcao(int stat) {
             int tempo = minimo(id_inicial);
             cout << tempo << "\n";
         } else if (stat == 3) {
-            vector<int> btn = congest();
-            for (int i = 0; i < (int)btn.size(); i++) {
-                cout << btn[i] << "\n";
+            vector<int> bottleneck = congest(id_inicial);
+            for (int i = 0; i < (int)bottleneck.size(); i++) {
+                cout << bottleneck[i] << "\n";
             }
 
         } else { // tem de dar erro
@@ -242,40 +240,12 @@ int minimo(int no) {
  *
  * BFS
  *
- * @return
- */
-vector<int> congest() {
-    vector<int> bottlenecks;
-    bottlenecks.push_back(id_inicial);
-
-    congest_frente(id_inicial);
-    for (int i = 1; i < 8; i++) {
-        cout << i << ": " << pintado[i] << "\n";
-    }
-    cout << "\n\n";
-
-    congest_tras(id_final);
-    for (int j = 1; j < 8; j++) {
-        cout << j << ": " << pintado[j] << "\n";
-    }
-
-
-    for (int i = 1; i < tamanho_mapa; ++i) {
-        if ( !pintado[i]) {
-            bottlenecks.push_back(mapa_op.at(i).dep_filhos[0]);
-        }
-    }
-
-    bottlenecks.push_back(id_final);
-
-    return bottlenecks;
-}
-
-/**
  *
  * @param no
  */
-void congest_frente(int no) {
+vector<int> congest(int no) {
+    vector<bool> pintado(tamanho_mapa, false);
+    vector<int> bottleneck;
     queue<int> q;
 
     q.push(no);
@@ -283,29 +253,36 @@ void congest_frente(int no) {
 
     while (!q.empty()) {
         no = q.front();
+        q.pop();
 
-        q.pop()
+        int count = 0;
+        // colocar as dependencias a False
+        for (int dep: mapa_op.at(no).dep) {
+            pintado[dep] = false;
+        }
+
+        // contar a quantidade de True no pintado
+        for (int i = 1; i < tamanho_mapa; i++) {
+            if (pintado[i]) {
+                count++;
+            }
+        }
+
+        // verificar se e bottleneck
+        if (count == 1){
+            bottleneck.push_back(no);
+        }
+
+        // colocar todos os filhos do NO a True
         for (int seg: mapa_op.at(no).dep_filhos) {
-
-            pintado[seg] = true;
-            q.push(seg);
+            mapa_op.at(seg).n_dep--;
+            if (mapa_op.at(seg).n_dep <= 0) {
+                pintado[seg] = true;
+                q.push(seg);
+            }
         }
     }
-
-}
-
-/**
- *
- * @param no
- */
-void congest_tras(int no) {
-    if(!pintado[no]) {
-        pintado[no] = true;
-
-        if (mapa_op.at(no).n_dep != 0) {
-            congest_tras(mapa_op.at(no).dep[0]);
-        }
-    }
+    return bottleneck;
 }
 
 /*
