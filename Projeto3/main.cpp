@@ -25,12 +25,16 @@ int id_final = 0;
 bool no_final = false;
 map<int, Tarefas> mapa_op;
 vector<int> visitados(1000);
+vector<bool> pintado(1000);     //stat 3
+
 void funcao(int stat);
 bool valid();
 bool ciclo(int no);
 void ordenar(int no);
 int minimo(int no);
-//void congestionamento();
+vector<int> congest();
+void congest_frente(int no);
+void congest_tras(int no);
 
 
 int main() {
@@ -97,10 +101,15 @@ void funcao(int stat) {
             // imprimir o tempo minimo possivel
             int tempo = minimo(id_inicial);
             cout << tempo << "\n";
-        } /*else if (stat == 3) {
-            congestionamento();
+        } else if (stat == 3) {
+            vector<int> btn = congest();
+            for (int i = 0; i < (int)btn.size(); i++) {
+                cout << btn[i] << "\n";
+            }
+
         } else { // tem de dar erro
-        }*/
+            return;
+        }
     } else {
         cout << "INVALID\n";
     }
@@ -223,37 +232,64 @@ int minimo(int no) {
     return tempo;
 }
 
-/*
+
 // stat == 3
-void congestionamento() {
-    vector<int> total;
-    vector<int> not_terminal;
-    for (int i = 0; i < (int)operacoes.size(); ++i) {
-        not_terminal.push_back(i+1);
+/**
+ *
+ */
+vector<int> congest() {
+    vector<int> bottlenecks;
+    bottlenecks.push_back(id_inicial);
+
+    congest_frente(id_inicial);
+    for (int i = 1; i < 8; i++) {
+        cout << i << ": " << pintado[i] << "\n";
     }
-    for (int i = 0; i < (int)operacoes.size(); ++i) {
-        if ((int)operacoes[i].size() == 2) {
-            total.push_back(i+1);
-        }
-        else if ((int)operacoes[i].size() > 3) {
-            total.push_back(i+1);
-        }
-        int no = i + 1;
-        for (int j = 0; j < (int)operacoes.size(); j++) {
-            for (int k = 0; k < (int)operacoes[j].dep.size(); k++) {
-                auto r = find(not_terminal.begin(), not_terminal.end(), no); //verifica se o no ja nao e terminal
-                if (no == operacoes[j].dep[k] and r != not_terminal.end()) {
-                    auto r = std::find(not_terminal.begin(), not_terminal.end(), no);
-                    not_terminal.erase(r);
-                }
-            }
+    cout << "\n\n";
+
+    congest_tras(id_final);
+    for (int j = 1; j < 8; j++) {
+        cout << j << ": " << pintado[j] << "\n";
+    }
+
+
+    for (int i = 1; i < tamanho_mapa; ++i) {
+        if ( !pintado[i]) {
+            bottlenecks.push_back(mapa_op.at(i).dep_filhos[0]);
         }
     }
-    total.push_back(not_terminal[0]);
-    for (int id: total) {
-        cout << id << "\n";
+
+    bottlenecks.push_back(id_final);
+
+    return bottlenecks;
+}
+/**
+ *
+ * @param no
+ */
+void congest_frente(int no) {
+    if (!pintado[no]) {
+        pintado[no] = true;
+
+        if(mapa_op.at(no).dep_filhos.size() > 0) {
+            congest_frente(mapa_op.at(no).dep_filhos[0]);
+        }
     }
-}*/
+}
+
+/**
+ *
+ * @param no
+ */
+void congest_tras(int no) {
+    if(!pintado[no]) {
+        pintado[no] = true;
+
+        if (mapa_op.at(no).n_dep != 0) {
+            congest_tras(mapa_op.at(no).dep[0]);
+        }
+    }
+}
 
 /*
  Exemplo 1 - ha 1 no desconectado
