@@ -38,6 +38,7 @@ vector<int> congest(int no);
 int main() {
     int n_op, time, n_dep, dep, stat;
     bool no_inicial = false;
+    bool erro = false;
     vector<int> line;
 
     cin >> n_op; // numero de tarefas
@@ -64,19 +65,23 @@ int main() {
             if (!no_inicial) { // verificar se ja existe NO id_inicial
                 no_inicial = true;
             } else {
-                cout << "INVALID\n";
-                return 0;
+                erro = true;
             }
         }
 
         line.clear();
     }
     cin >> stat;
-
-    if (!mapa_op.empty()) {
-        tamanho_mapa = (int) mapa_op.size();
-        funcao(stat);
+    if( !erro ) {
+        if (!mapa_op.empty()) {
+            tamanho_mapa = (int) mapa_op.size();
+            funcao(stat);
+        }
+    } else {
+        cout << "INVALID\n";
+        return 0;
     }
+    return 0;
 }
 
 
@@ -143,11 +148,9 @@ bool ciclo(int no) {
         mapa_op[no].pintado = true;
         mapa_op[no].rec = true;
 
-        //cout << "n_filhos: " << mapa_op[no].dep_filhos.size() << "\n";
         if ((int) mapa_op[no].dep_filhos.size() != 0) {
             for (int dep: mapa_op[no].dep_filhos) {
                 // se o no nao estiver pintado ou existir um ciclo -> ciclo
-                //cout << "estamos no No " << no << " pintado " << dep << ": " << mapa_op.at(dep).pintado << "\n";
                 if (!mapa_op.at(dep).pintado && ciclo(dep)) {
                     return true;
                 } else if (mapa_op.at(dep).rec) { // recursao em curso
@@ -161,12 +164,12 @@ bool ciclo(int no) {
                 id_final = no;
                 no_final = true;
             } else {
-                return false;
+                return true;
             }
         }
 
         if (mapa_op[no].n_dep == 0 and mapa_op[no].dep_filhos.size() == 0) {
-            return false;
+            return true;
         }
 
         mapa_op[no].rec = false;
